@@ -1,3 +1,5 @@
+#! /usr/bin/python3 
+
 import os, json, tkinter as tk
 from PIL import Image, ImageTk
 import ttkbootstrap as ttk
