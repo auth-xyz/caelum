@@ -1,0 +1,208 @@
+@import "styles-wal.css";
+
+* {
+  font-family: "JetBrainsMono Nerd Font Propo", monospace;
+  font-size: 14px;
+  color: @fg4;
+}
+
+#waybar {
+  background: transparent;
+  padding: 2px; 
+  margin: 0; 
+  border-radius: 5px; 
+}
+
+#taskbar {
+  font-size: 10px;
+  padding: 2px 3px;
+}
+
+#workspaces {
+  font-weight: 600;
+  color: @fg1
+}
+
+#network {
+  font-weight: 600;
+}
+
+#workspaces button {
+  background: transparent;
+  border: none;
+  color: @fg1;
+  padding: 1px 3px; 
+  margin: 1px; 
+  border-radius: 2px; 
+  font-size: 10px; 
+}
+
+#workspaces button:hover {
+  background: @bg2;
+  color: @fg4;
+}
+
+#workspaces button.active {
+  background: @bg2;
+  color: @bg0;
+  font-weight: bold;
+  border-radius: 50px;
+}
+
+#clock {
+  color: @fg1;
+  font-weight: 600;
+}
+
+#tray {
+  background: @bg0;
+  border-radius: 5px;
+  padding: 5px;
+}
+
+#tray > .item {
+  padding: 5px;
+  border-radius: 5px;
+  transition: background 0.3s, color 0.3s;
+}
+
+#tray > .item:hover {
+  background: @bg2;
+  color: @fg4;
+}
+
+.progress {
+  background: @bg2;
+  border-radius: 5px;
+}
+
+.progress > div {
+  background: @aqua;
+  transition: width 0.3s;
+}
+
+.progress.critical > div {
+  background: @red;
+}
+
+.progress.warning > div {
+  background: @orange;
+}
+
+.progress.good > div {
+  background: @green;
+}
+
+#tooltip {
+  background: @bg0;
+  color: @fg1;
+  padding: 8px 12px;
+  border-radius: 5px;
+  box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.5);
+  font-size: 12px;
+}
+
+.module {
+  padding: 2px 4px; 
+  margin: 1px; 
+  background: @bg0;
+  border-radius: 7px; 
+  border-color: rgba(1, 1, 1, 1);
+  font-size: 14px; 
+}
+
+.modules-left {
+  opacity: 0.91;
+  border-radius: 15px;
+}
+
+.modules-center {
+  opacity: 0.91;
+  border-radius: 5;
+}
+
+.modules-right {
+  opacity: 0.91;
+  border-radius: 5;
+  color: @fg1;
+}
+
+.module:hover {
+  background: @bg2;
+  color: @fg4;
+}
+
+.module.pulsing {
+  animation: pulse 1.5s infinite;
+}
+
+.module.active {
+  background: @blue;
+  color: @fg1;
+}
+
+@keyframes pulse {
+  0% {
+    background: @blue;
+  }
+  50% {
+    background: @aqua;
+  }
+  100% {
+    background: @blue;
+  }
+}
+
+#custom-launcher {
+    color: @tails; 
+    font-size: 16px;
+    transition: all 0.2s ease;
+    padding: 2px 10px; 
+}
+
+#custom-launcher:hover {
+    color: #fbf1c7;
+}
+
+#custom-notification {
+  color: @tails;
+  font-size: 16px;
+}
+
+#custom-system-stats {
+  padding: 4px 8px;
+  margin: 1px;
+  background: @bg0;
+  border-radius: 7px;
+  color: @fg1;
+  font-size: 14px;
+  font-weight: 600;
+  transition: all 0.2s ease-out;
+}
+
+#custom-system-stats:hover {
+  background: @bg2;
+  color: @fg4;
+}
+
+#custom-system-stats.collapsed {
+  min-width: 40px;
+  padding: 4px 6px;
+}
+
+#custom-system-stats.expanded {
+  min-width: 120px;
+  padding: 4px 10px;
+}
+
+#custom-ncspot {
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 600;
+  background-image: url("file:///home/auth/.cache/music_cover.png");
+  background-size: cover;
+  background-position: center;
+  border-radius: 8px;
+  padding: 4px 8px;
+}
+

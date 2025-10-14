@@ -1,0 +1,124 @@
+{
+  "layer": "bottom",
+  "position": "top",
+  "height": 30,
+  "width": 0,
+  "spacing": 5,
+  "margin-top": 5,
+  "margin-right": 30,
+  "margin-left": 30,
+  "modules-left": ["custom/launcher","hyprland/workspaces", "wlr/taskbar"],
+  "modules-center": ["clock", "custom/ncspot"],
+  "modules-right": ["custom/system-stats", "network", "tray", "idle_inhibitor"],
+
+  "hyprland/workspaces": {
+    "format": "{icon}",
+    "format-icons": {
+      "active": "󱓻",
+      "default": "󰆢",
+      "urgent": "",
+
+      "5": ""
+    }
+  },
+
+  "tray": {
+    "icon-size": "10",
+    "spacing": "50"
+  },
+ 
+  "network": {
+    "format": "{icon}",
+
+    "format-wifi":         " 󰤥 ",
+    "format-ethernet":     " 󰈀 ",
+    "format-disconnected": " 󰤮 ",
+    "format-icons": {
+      "low":  " 󰤟 ",
+      "high": " 󰤨 "
+    },
+    "tooltip-format": "{ifname}\nSSID: {essid}\nIP: {ipaddr}",
+    "on-click": "./scripts/network.sh"
+  },
+
+  "pulseaudio": {
+    "format": "{icon}  {volume}%",
+    "format-bluetooth": "{icon}  {volume}% ",
+    "format-muted": "",
+    "scroll-step": 1,
+    "max-volume": 200,
+    "on-click": "pavucontrol",
+    "ignored-sinks": ["Easy Effects Sink"],
+    "format-icons": {
+      "default": ["", ""]
+    }
+  },
+  
+  "hyprland/window": {
+    "format": "{app_id}",
+    "icon": true
+  },
+  
+  "battery": {
+    "format": "{capacity}% {icon}",
+    "format-icons": ["", "", "", "", ""]
+  },
+  
+  "clock": {
+    "format": " {:%a, %d. %b  %H:%M} ",
+    "on-click": "swaync-client -t"
+  },
+  
+  "idle_inhibitor": {
+    "format": "{icon}",
+    "format-icons": {
+      "activated": "",
+      "deactivated": ""
+    }
+  },
+  
+  "wlr/taskbar": {
+    "format": "{icon}",
+    "icon-size": 16,
+    "tooltip-format": "{title}",
+    "on-click": "activate",
+    "on-click-middle": "close"
+  },
+
+  "custom/launcher": {
+    "format": "",
+    "on-click": "flatpak run md.obsidian.Obsidian",
+    "tooltip": false
+  },
+
+  "custom/notifications": {
+    "format": " {}",
+    "exec": "swaync-client -c",
+    "return-type": "json",
+    "interval": 2,
+    "on-click": "swaync-client -t"
+  },
+
+  "custom/system-stats": {
+    "exec": "~/.config/waybar/scripts/system-stats.sh",
+    "return-type": "json",
+    "interval": 1,
+    "on-click": "~/.config/waybar/scripts/toggle-stats.sh",
+    "on-click-right": "pavucontrol",
+    "on-click-middle": "blueman-manager",
+    "tooltip": false,
+
+    "on-scroll-up":   "pactl set-sink-volume @DEFAULT_SINK@ +5%",
+    "on-scroll-down": "pactl set-sink-volume @DEFAULT_SINK@ -5%"
+  },
+
+  "custom/ncspot": {
+    "exec": "~/.config/waybar/scripts/musicstats.sh",
+    "interval": 50,
+    "format": "{}",
+    "max-length": 25,
+    "on-click": "~/.config/waybar/scripts/musictl.sh play-pause",
+    "on-click-right": "~/.config/waybar/scripts/musictl.sh next",
+    "on-click-middle": "~/.config/waybar/scripts/musictl.sh previous"
+  }
+}
