@@ -3,148 +3,134 @@ import json
 from pathlib import Path
 from colorsys import rgb_to_hls, hls_to_rgb
 
-# Paths
 wal_json = Path.home() / ".cache/wal/colors.json"
 waybar_css = Path.home() / ".config/waybar/styles-wal.css"
 fuzzel_ini = Path.home() / ".config/fuzzel/colors-wal.ini"
+swaync_css = Path.home() / ".config/swaync/colors-wal.css"
 kitty_conf = Path.home() / ".cache/wal/colors-kitty.conf"
 
-def hex_to_rgb(hex_color):
-    """Convert hex color to RGB tuple (0-1 range)"""
-    hex_color = hex_color.lstrip('#')
-    return tuple(int(hex_color[i:i+2], 16) / 255.0 for i in (0, 2, 4))
+def hex_to_rgb(h):
+    h = h.lstrip('#')
+    return tuple(int(h[i:i+2], 16) / 255.0 for i in (0, 2, 4))
 
 def rgb_to_hex(rgb):
-    """Convert RGB tuple (0-1 range) to hex"""
-    return '#{:02x}{:02x}{:02x}'.format(
-        int(rgb[0] * 255), int(rgb[1] * 255), int(rgb[2] * 255)
-    )
+    return '#{:02x}{:02x}{:02x}'.format(int(rgb[0]*255), int(rgb[1]*255), int(rgb[2]*255))
 
-def get_luminance(hex_color):
-    """Calculate perceived luminance of a color"""
-    r, g, b = hex_to_rgb(hex_color)
-    return 0.299 * r + 0.587 * g + 0.114 * b
+def get_lum(c):
+    r, g, b = hex_to_rgb(c)
+    return 0.299*r + 0.587*g + 0.114*b
 
-def adjust_color(hex_color, lightness_delta=0, saturation_factor=1.0):
-    """Adjust a color's lightness and saturation"""
-    r, g, b = hex_to_rgb(hex_color)
+def adjust(c, dl=0, sf=1.0):
+    r, g, b = hex_to_rgb(c)
     h, l, s = rgb_to_hls(r, g, b)
-    
-    l = max(0, min(1, l + lightness_delta))
-    s = max(0, min(1, s * saturation_factor))
-    
+    l = max(0, min(1, l+dl))
+    s = max(0, min(1, s*sf))
     r, g, b = hls_to_rgb(h, l, s)
     return rgb_to_hex((r, g, b))
 
-def find_best_color(colors, target_luminance, exclude=None):
-    """Find color closest to target luminance"""
-    exclude = exclude or []
-    candidates = [c for c in colors.values() if c not in exclude]
-    return min(candidates, key=lambda c: abs(get_luminance(c) - target_luminance))
+def best(colors, target, ex=None):
+    ex = ex or []
+    cands = [c for c in colors.values() if c not in ex]
+    return min(cands, key=lambda c: abs(get_lum(c)-target))
 
-# Load colors from pywal
 with open(wal_json) as f:
     data = json.load(f)
     colors = data["colors"]
     special = data.get("special", {})
 
-# Analyze the color scheme
 bg = special.get("background", colors["color0"])
 fg = special.get("foreground", colors["color7"])
-bg_lum = get_luminance(bg)
-is_dark_theme = bg_lum < 0.5
+bg_lum = get_lum(bg)
+dark = bg_lum < 0.5
+sorted_colors = sorted(colors.items(), key=lambda x: get_lum(x[1]))
 
-# Smart color selection based on theme type and color properties
-# Sort colors by luminance to find good contrasts
-sorted_colors = sorted(colors.items(), key=lambda x: get_luminance(x[1]))
-
-# Background hierarchy (darkest to lighter for dark themes, reverse for light)
-if is_dark_theme:
-    bg0 = sorted_colors[0][1]  # Darkest
-    bg1 = sorted_colors[1][1] if len(sorted_colors) > 1 else adjust_color(bg0, 0.05)
-    bg2 = sorted_colors[2][1] if len(sorted_colors) > 2 else adjust_color(bg0, 0.1)
+if dark:
+    bg0 = sorted_colors[0][1]
+    bg1 = sorted_colors[1][1] if len(sorted_colors)>1 else adjust(bg0,0.05)
+    bg2 = sorted_colors[2][1] if len(sorted_colors)>2 else adjust(bg0,0.1)
 else:
-    bg0 = sorted_colors[-1][1]  # Lightest
-    bg1 = sorted_colors[-2][1] if len(sorted_colors) > 1 else adjust_color(bg0, -0.05)
-    bg2 = sorted_colors[-3][1] if len(sorted_colors) > 2 else adjust_color(bg0, -0.1)
+    bg0 = sorted_colors[-1][1]
+    bg1 = sorted_colors[-2][1] if len(sorted_colors)>1 else adjust(bg0,-0.05)
+    bg2 = sorted_colors[-3][1] if len(sorted_colors)>2 else adjust(bg0,-0.1)
 
-# Foreground colors (high contrast)
-fg1 = fg  # Main foreground
-fg2 = find_best_color(colors, 0.7 if is_dark_theme else 0.3, exclude=[bg0, bg1, bg2])
-fg4 = colors["color15"] if is_dark_theme else colors["color0"]
+fg1 = fg
+fg2 = best(colors,0.7 if dark else 0.3,[bg0,bg1,bg2])
+fg4 = colors["color15"] if dark else colors["color0"]
 
-# Accent colors - find the most saturated colors for each hue category
-def get_saturation(hex_color):
-    r, g, b = hex_to_rgb(hex_color)
-    _, _, s = rgb_to_hls(r, g, b)
+def sat(c):
+    r,g,b = hex_to_rgb(c)
+    _,_,s = rgb_to_hls(r,g,b)
     return s
 
-def find_hue_color(target_hue_range):
-    """Find most saturated color in a hue range"""
-    candidates = []
-    for color in colors.values():
-        r, g, b = hex_to_rgb(color)
-        h, l, s = rgb_to_hls(r, g, b)
-        if target_hue_range[0] <= h <= target_hue_range[1] and s > 0.3:
-            candidates.append((color, s))
-    return max(candidates, key=lambda x: x[1])[0] if candidates else colors["color1"]
+def huecolor(hr):
+    cands=[]
+    for c in colors.values():
+        r,g,b=hex_to_rgb(c)
+        h,l,s=rgb_to_hls(r,g,b)
+        if hr[0]<=h<=hr[1] and s>0.3:
+            cands.append((c,s))
+    return max(cands,key=lambda x:x[1])[0] if cands else colors["color1"]
 
-# Better accent color selection
-red = find_hue_color((0.9, 1.0)) or find_hue_color((0.0, 0.1)) or colors["color1"]
-orange = find_hue_color((0.08, 0.15)) or colors["color3"]
-yellow = find_hue_color((0.13, 0.18)) or colors["color3"]
-green = find_hue_color((0.25, 0.45)) or colors["color2"]
-aqua = find_hue_color((0.45, 0.55)) or colors["color6"]
-blue = find_hue_color((0.55, 0.7)) or colors["color4"]
-tails = colors["color9"]  # Bright red/accent
+red=huecolor((0.9,1.0)) or huecolor((0.0,0.1)) or colors["color1"]
+green=huecolor((0.25,0.45)) or colors["color2"]
+blue=huecolor((0.55,0.7)) or colors["color4"]
 
-waybar_colors = {
-    "bg0": bg0,
-    "bg1": bg1,
-    "bg2": bg2,
-    "fg1": fg1,
-    "fg2": fg2,
-    "fg4": fg4,
-    "red": red,
-    "orange": orange,
-    "yellow": yellow,
-    "green": green,
-    "aqua": aqua,
-    "blue": blue,
-    "tails": tails,
+waybar_colors={
+    "bg0":bg0,"bg1":bg1,"bg2":bg2,
+    "fg1":fg1,"fg2":fg2,"fg4":fg4,
+    "red":red,"green":green,"blue":blue,
 }
 
-# Write Waybar CSS
-waybar_css.parent.mkdir(parents=True, exist_ok=True)
-with open(waybar_css, "w") as f:
-    f.write("/* Generated by walgen.py - Improved color mapping */\n")
-    f.write(f"/* Theme type: {'dark' if is_dark_theme else 'light'} */\n\n")
-    for k, v in waybar_colors.items():
+waybar_css.parent.mkdir(parents=True,exist_ok=True)
+with open(waybar_css,"w") as f:
+    f.write("/* Generated by walgen.py */\n")
+    for k,v in waybar_colors.items():
         f.write(f"@define-color {k} {v};\n")
 
-# Fuzzel colors with better contrast
-selection_bg = find_best_color(colors, 0.3 if is_dark_theme else 0.6)
-border_color = adjust_color(bg0, 0.15 if is_dark_theme else -0.15, 1.2)
-
-fuzzel_colors = {
-    "background": f"{bg0}dd",  # Slight transparency
-    "text": fg1,
-    "match": blue,
-    "selection": selection_bg,
-    "selection-match": aqua,
-    "selection-text": fg4,
-    "border": border_color,
+selection_bg=best(colors,0.3 if dark else 0.6)
+border_color=adjust(bg0,0.15 if dark else -0.15,1.2)
+fuzzel_colors={
+    "background":f"{bg0}dd",
+    "text":fg1,
+    "match":blue,
+    "selection":selection_bg,
+    "selection-match":green,
+    "selection-text":fg4,
+    "border":border_color,
 }
-
-# Write Fuzzel INI
-fuzzel_ini.parent.mkdir(parents=True, exist_ok=True)
-with open(fuzzel_ini, "w") as f:
-    f.write("# Generated by walgen.py - Improved color mapping\n")
-    for k, v in fuzzel_colors.items():
+fuzzel_ini.parent.mkdir(parents=True,exist_ok=True)
+with open(fuzzel_ini,"w") as f:
+    f.write("# Generated by walgen.py\n")
+    for k,v in fuzzel_colors.items():
         f.write(f"{k}={v}\n")
 
-print("✅ Waybar CSS and Fuzzel INI generated with improved color mapping.")
+# --- swaync generation ---
+swaync_colors = {
+    "cc-bg": bg0,
+    "noti-border-color": fg4,
+    "noti-bg": bg1,
+    "noti-bg-darker": adjust(bg1, -0.1),
+    "noti-bg-hover": adjust(bg1, 0.05),
+    "noti-bg-focus": bg1,
+    "noti-close-bg": fg2,
+    "noti-close-bg-hover": adjust(fg2, 0.1),
+    "text-color": fg1,
+    "text-color-disabled": adjust(fg1, -0.2, 0.8),
+    "bg-selected": blue,
+    "red-base": red,
+    "red-hover": adjust(red, 0.15),
+    "green-base": green,
+    "blue-base": blue,
+}
+
+swaync_css.parent.mkdir(parents=True, exist_ok=True)
+with open(swaync_css, "w") as f:
+    f.write("/* Generated by walgen.py */\n\n")
+    for k, v in swaync_colors.items():
+        f.write(f"@define-color {k} {v};\n")
+
+print("✅ Waybar, Fuzzel, and SwayNC color files generated.")
 print(f"📄 Waybar: {waybar_css}")
 print(f"📄 Fuzzel: {fuzzel_ini}")
-print(f"📄 Kitty: {kitty_conf}")
-print(f"🎨 Theme: {'Dark' if is_dark_theme else 'Light'} (bg luminance: {bg_lum:.2f})")
+print(f"📄 SwayNC: {swaync_css}")
+

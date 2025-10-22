@@ -1,21 +1,21 @@
 {
   "layer": "bottom",
   "position": "top",
-  "height": 30,
+  "height": 35,
   "width": 0,
   "spacing": 5,
-  "margin-top": 5,
+  "margin-top": -11,
   "margin-right": 30,
   "margin-left": 30,
-  "modules-left": ["custom/launcher","hyprland/workspaces", "wlr/taskbar"],
-  "modules-center": ["clock", "custom/ncspot"],
-  "modules-right": ["custom/system-stats", "network", "tray", "idle_inhibitor"],
+  "modules-left": ["custom/home","custom/sep","hyprland/workspaces", "custom/sep", "wlr/taskbar"],
+  "modules-center": ["custom/weather", "custom/sep", "clock", "custom/sep", "custom/ncspot"],
+  "modules-right": ["custom/system-stats", "custom/sep", "network", "custom/sep", "idle_inhibitor", "custom/power"],
 
   "hyprland/workspaces": {
     "format": "{icon}",
     "format-icons": {
-      "active": "󱓻",
-      "default": "󰆢",
+      "active": "",
+      "default": "",
       "urgent": "",
 
       "5": ""
@@ -30,12 +30,12 @@
   "network": {
     "format": "{icon}",
 
-    "format-wifi":         " 󰤥 ",
-    "format-ethernet":     " 󰈀 ",
-    "format-disconnected": " 󰤮 ",
+    "format-wifi":         "󰤥",
+    "format-ethernet":     "󰈀",
+    "format-disconnected": "󰤮",
     "format-icons": {
-      "low":  " 󰤟 ",
-      "high": " 󰤨 "
+      "low":  "󰤟",
+      "high": "󰤨"
     },
     "tooltip-format": "{ifname}\nSSID: {essid}\nIP: {ipaddr}",
     "on-click": "./scripts/network.sh"
@@ -65,7 +65,7 @@
   },
   
   "clock": {
-    "format": " {:%a, %d. %b  %H:%M} ",
+    "format": " {:%R %p 󰧞 %a, %d\/%m}",
     "on-click": "swaync-client -t"
   },
   
@@ -120,5 +120,28 @@
     "on-click": "~/.config/waybar/scripts/musictl.sh play-pause",
     "on-click-right": "~/.config/waybar/scripts/musictl.sh next",
     "on-click-middle": "~/.config/waybar/scripts/musictl.sh previous"
+  },
+
+  "custom/sep": {
+    "format": "",
+    "tooltip": false
+  },
+
+  "custom/power": {
+    "format": "⏻",
+    "tooltip": false
+  },
+
+  "custom/home": {
+    "format": "",
+    "tooltip": false
+  },
+
+  "custom/weather": {
+      "format": "{}°",
+      "tooltip": true,
+      "interval": 3600,
+      "exec": "wttrbar",
+      "return-type": "json"
   }
 }

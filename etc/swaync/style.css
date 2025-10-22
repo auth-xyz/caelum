@@ -1,18 +1,4 @@
-@define-color cc-bg #0d0f1a;
-@define-color noti-border-color #dcdccc;
-@define-color noti-bg #1a1c24;
-@define-color noti-bg-darker #2c2f3b;
-@define-color noti-bg-hover #2c2f3b;
-@define-color noti-bg-focus #1a1c24;
-@define-color noti-close-bg #dcdccc;
-@define-color noti-close-bg-hover #dcdccc;
-@define-color text-color #dcdccc;
-@define-color text-color-disabled #bfbfbf;
-@define-color bg-selected #406fa2;
-@define-color red-base #ff3c3c;
-@define-color red-hover #FF6F40;
-@define-color green-base #95c76f;
-@define-color blue-base #406fa2;
+@import "colors-wal.css";
 
 * {
   font-family: "JetBrainsMono Nerd Font Propo", monospace;

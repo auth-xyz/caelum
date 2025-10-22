@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+
+# Usage: repeat <n> some/other/program [args...]
+
+n=$1
+shift
+
+if [[ -z "$n" || ! "$n" =~ ^[0-9]+$ ]]; then
+  echo "Usage: repeat <number_of_times> <command> [args...]"
+  exit 1
+fi
+
+for ((i=1; i<=n; i++)); do
+  "$@"
+done
+

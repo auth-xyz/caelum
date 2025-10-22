@@ -5,8 +5,10 @@ from PIL import Image, ImageTk
 import ttkbootstrap as ttk
 import subprocess
 
+from tkinter import filedialog
+
 cfg = os.path.expanduser("~/.config/walchooser.json")
-wal = "./wal.sh"
+wal = os.path.expanduser("~/scripts/wal.sh")
 
 def load_cfg():
     if os.path.exists(cfg):
@@ -17,7 +19,7 @@ def save_cfg(d):
     with open(cfg, "w") as f: json.dump({"dir": d}, f)
 
 def choose_dir():
-    d = ttk.filedialog.askdirectory(title="Select Wallpaper Folder")
+    d = filedialog.askdirectory(title="Select Wallpaper Folder")
     if d:
         save_cfg(d)
         load_wallpapers(d)

@@ -66,6 +66,6 @@ elif mpc status &>/dev/null; then
         echo ""
     fi
 else
-    echo ""
+    echo "󰝛 nothing"
 fi
 

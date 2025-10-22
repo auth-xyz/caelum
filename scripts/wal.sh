@@ -37,9 +37,12 @@ EOF
 
 # --- Generate color scheme ---
 wal -i "$IMAGE" $WAL_FLAG
-python ~/.config/hypr/scripts/walgen.py
+python ~/scripts/walgen.py 
 
 # --- Reload Hyprland ---
 hyprctl reload
+pywalfox update
+pkill swaync; sleep 0.2; swaync & disown
+
 clear
 

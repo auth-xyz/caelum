@@ -3,7 +3,7 @@
 * {
   font-family: "JetBrainsMono Nerd Font Propo", monospace;
   font-size: 14px;
-  color: @fg4;
+  color: @fg1;
 }
 
 #waybar {
@@ -39,7 +39,7 @@
 
 #workspaces button:hover {
   background: @bg2;
-  color: @fg4;
+  color: @fg1;
 }
 
 #workspaces button.active {
@@ -47,6 +47,7 @@
   color: @bg0;
   font-weight: bold;
   border-radius: 50px;
+  margin: 1px 2px;
 }
 
 #clock {
@@ -68,7 +69,7 @@
 
 #tray > .item:hover {
   background: @bg2;
-  color: @fg4;
+  color: @fg1;
 }
 
 .progress {
@@ -111,25 +112,20 @@
   font-size: 14px; 
 }
 
-.modules-left {
-  opacity: 0.91;
-  border-radius: 15px;
-}
-
-.modules-center {
-  opacity: 0.91;
-  border-radius: 5;
-}
-
+.modules-left,
+.modules-center,
 .modules-right {
-  opacity: 0.91;
-  border-radius: 5;
-  color: @fg1;
+  background: @bg0;
+  border-radius: 12px;
+  padding: 4px 8px;
+  margin: 4px 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.25);
 }
+
 
 .module:hover {
   background: @bg2;
-  color: @fg4;
+  color: @fg1;
 }
 
 .module.pulsing {
@@ -182,7 +178,7 @@
 
 #custom-system-stats:hover {
   background: @bg2;
-  color: @fg4;
+  color: @fg1;
 }
 
 #custom-system-stats.collapsed {
@@ -199,10 +195,12 @@
   color: #ffffff;
   font-size: 14px;
   font-weight: 600;
-  background-image: url("file:///home/auth/.cache/music_cover.png");
-  background-size: cover;
-  background-position: center;
+  background: @tails;
   border-radius: 8px;
   padding: 4px 8px;
 }
 
+#custom-sep {
+	color: @fg1;
+	font-weight: 900;
+}
