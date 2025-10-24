@@ -65,7 +65,7 @@
   },
   
   "clock": {
-    "format": " {:%R %p 󰧞 %a, %d\/%m}",
+    "format": "{:%R %p 󰧞 %a, %d\/%m}",
     "on-click": "swaync-client -t"
   },
   
