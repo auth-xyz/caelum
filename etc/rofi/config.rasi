@@ -1,0 +1,54 @@
+@import "~/.config/rofi/colors-wal.rasi"
+
+* {
+    font: "JetBrainsMono Nerd Font 12";
+}
+
+window {
+    background-color: @background;
+    border: 0px;
+    border-radius: 8px;
+    padding: 10px;
+}
+
+mainbox {
+    padding: 10px;
+    background-color: @background;
+}
+
+listview {
+    lines: 10;
+    fixed-height: false;
+    border: 0px;
+    padding: 5px 0;
+    background-color: @background;
+}
+
+element {
+    padding: 6px 10px;
+    border-radius: 6px;
+    background-color: @background;
+}
+
+element-text {
+    background-color: @background;
+    text-color: @foreground;
+}
+
+element selected {
+    background-color: @background-alt;
+    text-color: @foreground;
+}
+
+inputbar {
+    padding: 5px 10px;
+    border-radius: 6px;
+    background-color: @background;
+    text-color: @foreground;
+}
+
+prompt {
+    background-color: @background;
+    text-color: @foreground;
+}
+

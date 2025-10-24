@@ -129,7 +129,8 @@
 
   "custom/power": {
     "format": "⏻",
-    "tooltip": false
+    "tooltip": false,
+    "on-click": "~/scripts/power-menu.sh"
   },
 
   "custom/home": {
