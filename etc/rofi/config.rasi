@@ -5,10 +5,14 @@
 }
 
 window {
+    width: 400px;
+    height: 300px;
     background-color: @background;
-    border: 0px;
+    border: 1px;
     border-radius: 8px;
+    border-color: @border;
     padding: 10px;
+    box-shadow: 0 4px 30px 8px;
 }
 
 mainbox {
@@ -40,6 +44,11 @@ element selected {
     text-color: @foreground;
 }
 
+element-text selected {
+    background-color: @background-alt;
+    text-color: @foreground;
+}
+
 inputbar {
     padding: 5px 10px;
     border-radius: 6px;
@@ -52,3 +61,12 @@ prompt {
     text-color: @foreground;
 }
 
+entry {
+    background-color: @background-alt;
+    text-color: @foreground;
+    border-radius: 3px;
+}
+
+case-indicator {
+    background-color: @background;
+}
