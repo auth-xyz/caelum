@@ -10,7 +10,7 @@ fi
 
 IMAGE=$(realpath "$1")
 
-# --- Detect wallpaper theme (white/black) ---
+# --- Detect wallpaper theme (light/dark) ---
 brightness=$(magick "$IMAGE" -colorspace Gray -format "%[fx:mean]" info:)
 theme=$(awk -v b="$brightness" 'BEGIN { print (b > 0.5 ? "light" : "dark") }')
 
@@ -20,29 +20,31 @@ else
     WAL_FLAG=""
 fi
 
-# --- Set wallpaper dynamically ---
-hyprctl hyprpaper preload "$IMAGE"
-hyprctl hyprpaper wallpaper "HDMI-A-1,$IMAGE"
-hyprctl hyprpaper wallpaper "eDP-1,$IMAGE"
+# --- Wallpaper transition settings ---
+TRANSITION="grow"
+FPS=60
+DURATION=1.2
+BEZIER="0.4,0.2,0.2,1.0"
 
-sleep 1
-hyprctl hyprpaper unload unused
-
-# --- Update hyprpaper.conf ---
-cat > "$CONF" <<EOF
-preload = $IMAGE
-wallpaper = HDMI-A-1,$IMAGE
-wallpaper = eDP-1,$IMAGE
-EOF
+# --- Apply wallpaper to all monitors ---
+mapfile -t MONITORS < <(hyprctl monitors -j | jq -r '.[].name')
+for MON in "${MONITORS[@]}"; do
+    swww img "$IMAGE" \
+        --outputs "$MON" \
+        --transition-type "$TRANSITION" \
+        --transition-fps "$FPS" \
+        --transition-duration "$DURATION" \
+        --transition-bezier "$BEZIER"
+done
 
 # --- Generate color scheme ---
 wal -i "$IMAGE" $WAL_FLAG
 python ~/scripts/walgen.py 
 
-# --- Reload Hyprland ---
+# --- Reload and update system components ---
 hyprctl reload
 pywalfox update
 pkill swaync; sleep 0.2; swaync & disown
 
-clear
+#clear
 
