@@ -73,7 +73,7 @@ It integrates dynamic theming through **pywal**, modular **Neovim** configuratio
 Clone and install:
 
 ```bash
-git clone https://github.com/yourname/caelum.git ~/caelum
+git clone https://github.com/auth-xyz/caelum.git ~/caelum
 cd ~/caelum
 ./install.sh
 ```
