@@ -1,0 +1,67 @@
+#!/bin/bash
+
+scripts_dir="$HOME/scripts"
+wall_dir="$HOME/wallpapers"
+current_wall="$HOME/.cache/current_wall"
+
+usage() {
+    echo "Caelum — system helper"
+    echo
+    echo "Usage: caelum <command> [args]"
+    echo
+    echo "Commands:"
+    echo "  wall [path]     Change wallpaper (via wal.sh)"
+    echo "  theme [light|dark|auto]  Regenerate theme from current wallpaper"
+    echo "  menu [type]     Launch menu: home/power"
+    echo "  lock            Lock the screen"
+    echo "  reload          Reload Hyprland config"
+    echo "  help            Show this help"
+    echo
+}
+
+case "$1" in
+    wall)
+        img="${2:-random}"
+        if [ "$img" = "random" ]; then
+            img=$(find "$wall_dir" -type f | shuf -n 1)
+        fi
+        echo "$img" > "$current_wall"
+        "$scripts_dir/wal.sh" "$img"
+        ;;
+    theme)
+        [ ! -f "$current_wall" ] && { echo "No current wallpaper found."; exit 1; }
+        wall=$(cat "$current_wall")
+        case "$2" in
+            light|-l|--light)
+                "$scripts_dir/wal.sh" "$wall" -l
+                ;;
+            dark|-d|--dark|""|auto)
+                "$scripts_dir/wal.sh" "$wall"
+                ;;
+            *)
+                echo "Usage: caelum theme [light|dark|auto]"
+                ;;
+        esac
+        ;;
+    menu)
+        case "$2" in
+            home) "$scripts_dir/home-menu.sh" ;;
+            power) "$scripts_dir/power-menu.sh" ;;
+            *) echo "Unknown menu type: $2";;
+        esac
+        ;;
+    lock)
+        hyprlock
+        ;;
+    reload)
+        hyprctl reload
+        ;;
+    help|"")
+        usage
+        ;;
+    *)
+        echo "Unknown command: $1"
+        echo "Try 'caelum help'"
+        ;;
+esac
+
