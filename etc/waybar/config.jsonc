@@ -135,7 +135,8 @@
 
   "custom/home": {
     "format": "",
-    "tooltip": false
+    "tooltip": false,
+    "on-click": "~/scripts/home-menu.sh"
   },
 
   "custom/weather": {

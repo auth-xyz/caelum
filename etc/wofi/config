@@ -1,0 +1,11 @@
+[style]
+css=~/.config/wofi/style.css
+
+[settings]
+show=grid
+allow-images=true
+prompt=
+columns=4
+width=1200
+height=800
+

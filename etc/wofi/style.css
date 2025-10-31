@@ -1,0 +1,75 @@
+@import url("file:///home/auth/.config/wofi/style-wal.css");
+
+window {
+    font-family: "JetBrainsMono Nerd Font";
+    font-size: 12pt;
+    background-color: @bg;
+    border: 1px solid @border;
+    border-radius: 8px;
+    box-shadow: 0 4px 30px 8px rgba(0, 0, 0, 0.25);
+    padding: 10px;
+}
+
+/* Main list area */
+#outer-box {
+    background-color: @bg;
+    padding: 10px;
+    border-radius: 8px;
+}
+
+#input {
+    background-color: @bg1;
+    color: @foreground;
+    border-radius: 6px;
+    padding: 5px 10px;
+    margin-bottom: 10px;
+}
+
+/* Hide the default search label (prompt) */
+#prompt {
+    color: @foreground;
+    background-color: @bg;
+    margin-right: 8px;
+}
+
+#scroll {
+    background-color: @bg;
+    border: none;
+}
+
+/* Each wallpaper item */
+#entry {
+    background-color: @bg;
+    color: @foreground;
+    border-radius: 6px;
+    padding: 6px 10px;
+    margin: 2px;
+}
+
+/* Hover and selection states */
+#entry:selected, #entry:focus {
+    background-color: @bg1;
+    color: @foreground;
+}
+
+/* Scrollbar */
+scrollbar {
+    background-color: transparent;
+}
+scrollbar slider {
+    background-color: @bg1;
+    border-radius: 3px;
+}
+
+/* Image mode adjustments */
+image {
+    border-radius: 8px;
+}
+
+/* Optional: make it grid-like for wallpaper mode */
+#outer-box {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+}
+
