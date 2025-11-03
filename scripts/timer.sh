@@ -1,8 +1,13 @@
 #! /bin/bash 
 
-notify-send "Reboot" "starting now"
-sleep 1560 # 26 minutes
+counter=1
+minutes=27
+mininsec=$(( $minutes * 60 )); 
 
-notify-send "Reboot" "26 minute timer ended, rebooting in 5 seconds"
-sleep 5 
-reboot
+while [ $counter -lt $mininsec ]; do 
+    echo "[c] counting the seconds: { $counter / $mininsec }"
+    sleep 1
+    counter=$(( $counter + 1 ))
+done
+
+systemctl suspend

@@ -1,0 +1,82 @@
+# Initialize zoxide
+
+eval "$(zoxide init zsh)"
+
+# Environment variables
+
+export LD_LIBRARY_PATH="/usr/local/lib:/usr/local/lib64/"
+export PATH="$HOME/.local/bin:$PATH"
+export GIT="[https://github.com](https://github.com)"
+export PROJECTS="$HOME/Projects/"
+export SCRIPTS="$HOME/.scripts"
+export WALLP="$HOME/.wallpapers"
+export CONFIG="$HOME/.config"
+
+# System aliases
+
+alias inst="sudo pacman -S --noconfirm"
+alias update="sudo pacman -Syu --noconfirm"
+alias remove="sudo pacman -R"
+
+alias cd='z'
+alias ls="eza --icons --all"
+alias ll="eza --icons --color --long --tree --all"
+
+alias kill="killall -KILL"
+alias copy="wl-copy"
+alias syncv="rclone sync $HOME/Vault gdrive:Vault/"
+
+# VPN aliases
+
+alias vpnc="sudo protonvpn c"
+alias vpnd="sudo protonvpn d"
+alias vpns="sudo protonvpn status"
+
+# Script aliases
+
+alias fontinstall="cp $SCRIPTS/fontin.py ./ && python3 ./fontin.py && rm fontin.py"
+alias port_foward="$SCRIPTS/portfowarding.sh"
+alias audio="/usr/bin/audio -c wp"
+alias icat="kitty +kitten icat"
+alias fasty="fastfetch"
+
+# Git helper function with fuzzy subcommands and autocompletion
+
+g() {
+local cmd="$1"
+shift
+case "$cmd" in
+init* ) git init "$@" ;;
+cl* ) git clone "$@" ;;
+co* ) git checkout "$@" ;;
+b ) git branch "$@" ;;
+bd ) git branch -d "$@" ;;
+st* ) git status "$@" ;;
+a ) git add "$@" ;;
+aa ) git add . ;;
+cm* ) git commit -m "$@" ;;
+p | push ) git push "$@" ;;
+pl* ) git pull "$@" ;;
+pr )
+branch=$(git rev-parse --abbrev-ref HEAD)
+git push --set-upstream origin "$branch" && 
+echo "Pull request created for branch $branch"
+;;
+rh* ) git reset --hard ;;
+d* ) git diff "$@" ;;
+lg* ) lazygit ;;
+* ) echo "Usage: g [init|cl|co|b|bd|st|a|aa|cm|p|pl|pr|rh|d|lg]" ;;
+esac
+}
+
+# Enable git autocomplete for g()
+
+compdef _git g
+
+# System logging aliases
+
+alias syslog="sudo journalctl -f"
+alias netlog="sudo tcpdump -i any"
+alias netusage="sudo iftop"
+alias kernellog="sudo dmesg -w"
+
