@@ -11,3 +11,4 @@ while [ $counter -lt $mininsec ]; do
 done
 
 systemctl suspend
+
