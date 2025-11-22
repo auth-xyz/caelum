@@ -6,6 +6,6 @@ return {
     opts = function()
         local neopywal = require("neopywal");
         neopywal.setup();
-        vim.cmd.colorscheme("neopywal");
+        --vim.cmd.colorscheme("neopywal");
     end,
 }
