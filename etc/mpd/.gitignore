@@ -1,5 +1,5 @@
-./state
-./database
-./log
-./pid
-
+mpd.state
+mpd.db
+mpd.log
+mpd.pid
+mpd.pls
