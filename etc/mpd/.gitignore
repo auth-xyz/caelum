@@ -1,4 +1,5 @@
-database
-log
-pid
-state
+./state
+./database
+./log
+./pid
+
