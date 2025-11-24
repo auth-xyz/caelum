@@ -1,4 +1,4 @@
-@import "~/.config/rofi/colors-wal.rasi"
+@import "~/.config/rofi/colors.rasi"
 
 * {
     font: "JetBrainsMono Nerd Font 12";
@@ -10,7 +10,7 @@ window {
     background-color: @background;
     border: 1px;
     border-radius: 8px;
-    border-color: @border;
+    border-color: @blue;
     padding: 10px;
     box-shadow: 0 4px 30px 8px;
 }
