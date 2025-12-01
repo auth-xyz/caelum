@@ -48,6 +48,6 @@ selected="$DIR/${file%.*}".*
 
 # Apply wallpaper
 for img in "${files[@]}"; do
-    [[ "$(basename "$img")" == "$file" || "$(basename "${img%.*}")" == "${file%.*}" ]] && exec "$WAL" "$img"
+    [[ "$(basename "$img")" == "$file" || "$(basename "${img%.*}")" == "${file%.*}" ]] 
 done
 

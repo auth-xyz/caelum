@@ -14,8 +14,6 @@ export CONFIG="$HOME/.config"
 
 # System aliases
 
-alias inst="sudo pacman -S --noconfirm"
-alias update="sudo pacman -Syu --noconfirm"
 alias remove="sudo pacman -R"
 
 alias cd='z'
@@ -73,10 +71,41 @@ esac
 
 compdef _git g
 
-# System logging aliases
+# -- some funcs cause yes
 
-alias syslog="sudo journalctl -f"
-alias netlog="sudo tcpdump -i any"
-alias netusage="sudo iftop"
-alias kernellog="sudo dmesg -w"
+inst() {
+    local pkg="$1"
+    if [ -z "$pkg" ]; then
+        echo "Usage: install <package>"
+        return 1
+    fi
+    
+    if pacman -Si "$pkg" &>/dev/null; then
+        echo "Installing $pkg from official repositories..."
+        sudo pacman -S "$pkg"
+    else
+        echo "Package not in official repos, trying AUR..."
+        yay -S "$pkg"
+    fi
+}
 
+update() {
+    echo "Updating all packages..."
+    yay -Syu
+}
+
+# Custom completion that only suggests package names
+if [ -n "$BASH_VERSION" ]; then
+    _install_complete() {
+        local cur="${COMP_WORDS[COMP_CWORD]}"
+        COMPREPLY=( $(compgen -W "$(pacman -Sql)" -- "$cur") )
+    }
+    complete -F _install_complete inst 
+elif [ -n "$ZSH_VERSION" ]; then
+    _install_zsh() {
+        local -a packages
+        packages=(${(f)"$(pacman -Sql)"})
+        _describe 'package' packages
+    }
+    compdef _install_zsh inst 
+fi
