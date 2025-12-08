@@ -1,11 +1,7 @@
 #!/usr/bin/env bash
-#
-# Wofi wallpaper chooser — tuned layout
-#
 
 DIR="$HOME/wallpapers"
 CACHE="$HOME/.cache/wal-thumbs"
-WAL="$HOME/scripts/wal.sh"
 
 mkdir -p "$CACHE"
 shopt -s nullglob nocaseglob
@@ -42,12 +38,8 @@ choice=$(echo -e "$menu" | \
 
 [[ -z "$choice" ]] && exit 0
 
-# Extract filename from choice
 file=$(basename "${choice#img:}")
-selected="$DIR/${file%.*}".*
+selected=$(printf "%s\n" "$DIR/${file%.*}".*)
 
-# Apply wallpaper
-for img in "${files[@]}"; do
-    [[ "$(basename "$img")" == "$file" || "$(basename "${img%.*}")" == "${file%.*}" ]] 
-done
+swww img "$selected"
 

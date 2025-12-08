@@ -1,25 +1,53 @@
 @import url("file:///home/auth/.config/wofi/style-wal.css");
 
+/* Fallback variables in case @bg/@bg1/@foreground/@border are not supplied */
+:root {
+    --bg: rgba(18,18,18,0.9);
+    --bg1: rgba(30,30,30,0.95);
+    --foreground: #e6e1cf;
+    --border: rgba(255,255,255,0.06);
+}
+
 window {
     font-family: "JetBrainsMono Nerd Font";
     font-size: 12pt;
+
+    /* try wal variable first, then CSS var, then hard fallback */
     background-color: @bg;
+    background-color: var(--bg);
+    background-color: rgba(18,18,18,0.92) !important;
+
     border: 1px solid @border;
+    border: 1px solid var(--border);
     border-radius: 8px;
     box-shadow: 0 4px 30px 8px rgba(0, 0, 0, 0.25);
     padding: 10px;
+    /* avoid accidental transparency from compositor */
+    opacity: 1;
+    background-clip: padding-box;
 }
 
 /* Main list area */
 #outer-box {
+    /* keep grid rules below, but ensure a solid background */
     background-color: @bg;
+    background-color: var(--bg);
+    background-color: rgba(18,18,18,0.88) !important;
     padding: 10px;
     border-radius: 8px;
+
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
 }
 
+/* Input area */
 #input {
     background-color: @bg1;
+    background-color: var(--bg1);
+    background-color: rgba(30,30,30,0.95) !important;
     color: @foreground;
+    color: var(--foreground);
     border-radius: 6px;
     padding: 5px 10px;
     margin-bottom: 10px;
@@ -28,28 +56,36 @@ window {
 /* Hide the default search label (prompt) */
 #prompt {
     color: @foreground;
+    color: var(--foreground);
     background-color: @bg;
+    background-color: var(--bg);
     margin-right: 8px;
 }
 
 #scroll {
     background-color: @bg;
+    background-color: var(--bg);
     border: none;
 }
 
 /* Each wallpaper item */
 #entry {
     background-color: @bg;
+    background-color: var(--bg);
     color: @foreground;
+    color: var(--foreground);
     border-radius: 6px;
     padding: 6px 10px;
     margin: 2px;
 }
 
 /* Hover and selection states */
-#entry:selected, #entry:focus {
+#entry:selected,
+#entry:focus {
     background-color: @bg1;
+    background-color: var(--bg1);
     color: @foreground;
+    color: var(--foreground);
 }
 
 /* Scrollbar */
@@ -58,18 +94,12 @@ scrollbar {
 }
 scrollbar slider {
     background-color: @bg1;
+    background-color: var(--bg1);
     border-radius: 3px;
 }
 
 /* Image mode adjustments */
 image {
     border-radius: 8px;
-}
-
-/* Optional: make it grid-like for wallpaper mode */
-#outer-box {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 10px;
 }
 
