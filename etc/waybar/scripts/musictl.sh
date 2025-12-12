@@ -2,15 +2,14 @@
 
 action="$1"
 
-if playerctl -p ncspot status &>/dev/null; then
-    # Control ncspot via playerctl
+if playerctl -p spotify status &>/dev/null; then
     case "$action" in
-        play-pause) playerctl -p ncspot play-pause ;;
-        next) playerctl -p ncspot next ;;
-        previous) playerctl -p ncspot previous ;;
+        play-pause) playerctl -p spotify play-pause ;;
+        next) playerctl -p spotify next ;;
+        previous) playerctl -p spotify previous ;;
     esac
+
 elif mpc status &>/dev/null; then
-    # Control MPD via mpc
     case "$action" in
         play-pause) mpc toggle ;;
         next) mpc next ;;
