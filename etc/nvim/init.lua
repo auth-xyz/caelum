@@ -2,6 +2,7 @@ require("core.keymaps");
 require("core.options");
 require("core.swap");
 require("core.lazy");
+require("core.themey");
 
 vim.api.nvim_create_autocmd({"InsertEnter"}, {
     callback = function()

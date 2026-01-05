@@ -19,6 +19,7 @@ alias remove="sudo pacman -R"
 alias cd='z'
 alias ls="eza --icons --all"
 alias ll="eza --icons --color --long --tree --all"
+alias nv="nvim"
 
 alias kill="killall -KILL"
 alias copy="wl-copy"
@@ -74,24 +75,35 @@ compdef _git g
 # -- some funcs cause yes
 
 inst() {
-    local pkg="$1"
-    if [ -z "$pkg" ]; then
-        echo "Usage: install <package>"
-        return 1
-    fi
-    
+  if [ "$#" -eq 0 ]; then
+    echo "Usage: inst <package> [package...]"
+    return 1
+  fi
+
+  local repo=()
+  local aur=()
+
+  for pkg in "$@"; do
     if pacman -Si "$pkg" &>/dev/null; then
-        echo "Installing $pkg from official repositories..."
-        sudo pacman -S "$pkg"
+      repo+=("$pkg")
     else
-        echo "Package not in official repos, trying AUR..."
-        yay -S "$pkg"
+      aur+=("$pkg")
     fi
+  done
+
+  if [ "${#repo[@]}" -gt 0 ]; then
+    sudo pacman -S "${repo[@]}" --noconfirm
+  fi
+
+  if [ "${#aur[@]}" -gt 0 ]; then
+    yay -S "${aur[@]}" --noconfirm
+  fi
 }
 
 update() {
     echo "Updating all packages..."
-    yay -Syu
+    sudo pacman -Syu --noconfirm
+    yay -Syu --noconfirm
 }
 
 # Custom completion that only suggests package names
@@ -109,3 +121,14 @@ elif [ -n "$ZSH_VERSION" ]; then
     }
     compdef _install_zsh inst 
 fi
+
+
+print_welcome() {
+  local t u k
+  t=$(date +"%I:%M%p" | tr '[:upper:]' '[:lower:]')
+  u=$(uptime -p | sed 's/^up //')
+  k=$(uname -r)
+  print -P "\nit's %F{39}$t%f  %F{75}$u%f  %F{250}$k%f\n"
+}
+[[ -z "$ZSH_WELCOME_SHOWN" ]] && print_welcome && export ZSH_WELCOME_SHOWN=1
+

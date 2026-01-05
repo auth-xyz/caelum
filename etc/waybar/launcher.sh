@@ -1,4 +1,4 @@
 #! /bin/bash
 
 pkill -x waybar
-waybar &
+env GTK_THEME=Adwaita:dark waybar &

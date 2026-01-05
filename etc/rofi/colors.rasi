@@ -5,7 +5,7 @@
     foreground: #a8b0c8;
     border: #4d6a8a;
     cursor: #e0b87d;
-    
+
     black: #1a1d28;
     red: #d4825c;
     green: #5a7a6f;
@@ -14,7 +14,7 @@
     magenta: #7a6b8e;
     cyan: #5d8a92;
     white: #9ca3b8;
-    
+
     bright-black: #3a4150;
     bright-red: #e8a074;
     bright-green: #729184;
@@ -23,7 +23,7 @@
     bright-magenta: #9b88ab;
     bright-cyan: #7aa8b5;
     bright-white: #c5cce0;
-    
+
     background-color: @background;
     text-color: @foreground;
     selected-normal-background: @blue;
