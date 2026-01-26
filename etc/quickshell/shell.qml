@@ -13,8 +13,8 @@ ShellRoot {
     }
 
     // Font
-    property string fontFamily: "JetBrainsMono Nerd Font"
-    property int fontSize: 14
+    property string fontFamily: "JetBrainsMono Nerd Font Propo"
+    property int fontSize: 16
 
     // System info properties
     property string kernelVersion: "Linux"
@@ -228,7 +228,7 @@ ShellRoot {
                 right: true
             }
 
-            implicitHeight: 30
+            implicitHeight: 40
             color: theme.colBg
 
             margins {
@@ -355,7 +355,7 @@ ShellRoot {
                     }
 
                     Text {
-                        text: (spotifyStatus === "Playing" ? "▶ " : "⏸ ") + 
+                        text: (spotifyStatus === "Playing" ? " " : " ") + 
                               (spotifyArtist ? spotifyArtist + " - " : "") + spotifyTrack
                         color: spotifyStatus === "Playing" ? theme.colGreen : theme.colMuted
                         font.pixelSize: root.fontSize
