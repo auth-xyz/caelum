@@ -33,6 +33,7 @@ alias vpns="sudo protonvpn status"
 
 # Script aliases
 
+alias py="python"
 alias fontinstall="cp $SCRIPTS/fontin.py ./ && python3 ./fontin.py && rm fontin.py"
 alias port_foward="$SCRIPTS/portfowarding.sh"
 alias audio="/usr/bin/audio -c wp"
@@ -125,7 +126,7 @@ fi
 
 print_welcome() {
   local t u k
-  t=$(date +"%I:%M%p" | tr '[:upper:]' '[:lower:]')
+  t=$(LC_TIME=C date +"%I:%M%p" | tr '[:upper:]' '[:lower:]')
   u=$(uptime -p | sed 's/^up //')
   k=$(uname -r)
   print -P "\nit's %F{39}$t%f  %F{75}$u%f  %F{250}$k%f\n"

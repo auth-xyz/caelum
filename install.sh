@@ -16,7 +16,6 @@ link "$src/hypr" ~/.config/hypr
 link "$src/scripts" ~/scripts
 link "$src/wallpapers" ~/wallpapers
 
-chmod +x ~/scripts/* ~/scripts/repeat
 
 echo "installing scripts/caelum to /usr/local/bin/"
 sudo ln -sf "$src/scripts/caelum" /usr/local/bin/
