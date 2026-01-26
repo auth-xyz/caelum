@@ -8,15 +8,9 @@ import QtQuick.Layouts
 ShellRoot {
     id: root
 
-    // Theme colors
-    property color colBg: "#1a1b26"
-    property color colFg: "#a9b1d6"
-    property color colMuted: "#444b6a"
-    property color colCyan: "#0db9d7"
-    property color colPurple: "#ad8ee6"
-    property color colRed: "#f7768e"
-    property color colYellow: "#e0af68"
-    property color colBlue: "#7aa2f7"
+    Theme {
+        id: theme
+    }
 
     // Font
     property string fontFamily: "JetBrainsMono Nerd Font"
@@ -30,6 +24,11 @@ ShellRoot {
     property int volumeLevel: 0
     property string activeWindow: "Window"
     property string currentLayout: "Tile"
+
+    // Spotify properties
+    property string spotifyTrack: "No track"
+    property string spotifyArtist: ""
+    property string spotifyStatus: "Paused"
 
     // CPU tracking
     property var lastCpuIdle: 0
@@ -155,6 +154,24 @@ ShellRoot {
         Component.onCompleted: running = true
     }
 
+    // Spotify metadata
+    Process {
+        id: spotifyProc
+        command: ["sh", "-c", "playerctl -p spotify metadata --format '{{artist}}|{{title}}|{{status}}' 2>/dev/null || echo '||Paused'"]
+        stdout: SplitParser {
+            onRead: data => {
+                if (!data) return
+                var parts = data.trim().split('|')
+                if (parts.length >= 3) {
+                    spotifyArtist = parts[0] || ""
+                    spotifyTrack = parts[1] || "No track"
+                    spotifyStatus = parts[2] || "Paused"
+                }
+            }
+        }
+        Component.onCompleted: running = true
+    }
+
     // Slow timer for system stats
     Timer {
         interval: 2000
@@ -165,6 +182,16 @@ ShellRoot {
             memProc.running = true
             diskProc.running = true
             volProc.running = true
+        }
+    }
+
+    // Timer for Spotify updates
+    Timer {
+        interval: 1000
+        running: true
+        repeat: true
+        onTriggered: {
+            spotifyProc.running = true
         }
     }
 
@@ -202,7 +229,7 @@ ShellRoot {
             }
 
             implicitHeight: 30
-            color: root.colBg
+            color: theme.colBg
 
             margins {
                 top: 0
@@ -213,7 +240,7 @@ ShellRoot {
 
             Rectangle {
                 anchors.fill: parent
-                color: root.colBg
+                color: theme.colBg
 
                 RowLayout {
                     anchors.fill: parent
@@ -221,6 +248,7 @@ ShellRoot {
 
                     Item { width: 8 }
 
+                    // Workspaces
                     Repeater {
                         model: 9
 
@@ -235,7 +263,7 @@ ShellRoot {
 
                             Text {
                                 text: index + 1
-                                color: parent.isActive ? root.colCyan : (parent.hasWindows ? root.colCyan : root.colMuted)
+                                color: parent.isActive ? theme.colCyan : (parent.hasWindows ? theme.colCyan : theme.colMuted)
                                 font.pixelSize: root.fontSize
                                 font.family: root.fontFamily
                                 font.bold: true
@@ -245,7 +273,7 @@ ShellRoot {
                             Rectangle {
                                 width: 20
                                 height: 3
-                                color: parent.isActive ? root.colPurple : root.colBg
+                                color: parent.isActive ? theme.colPurple : theme.colBg
                                 anchors.horizontalCenter: parent.horizontalCenter
                                 anchors.bottom: parent.bottom
                             }
@@ -263,12 +291,12 @@ ShellRoot {
                         Layout.alignment: Qt.AlignVCenter
                         Layout.leftMargin: 8
                         Layout.rightMargin: 8
-                        color: root.colMuted
+                        color: theme.colMuted
                     }
 
                     Text {
                         text: currentLayout
-                        color: root.colFg
+                        color: theme.colFg
                         font.pixelSize: root.fontSize
                         font.family: root.fontFamily
                         font.bold: true
@@ -282,12 +310,12 @@ ShellRoot {
                         Layout.alignment: Qt.AlignVCenter
                         Layout.leftMargin: 2
                         Layout.rightMargin: 8
-                        color: root.colMuted
+                        color: theme.colMuted
                     }
 
                     Text {
                         text: activeWindow
-                        color: root.colPurple
+                        color: theme.colPurple
                         font.pixelSize: root.fontSize
                         font.family: root.fontFamily
                         font.bold: true
@@ -297,103 +325,15 @@ ShellRoot {
                         maximumLineCount: 1
                     }
 
-                    Text {
-                        text: kernelVersion
-                        color: root.colRed
-                        font.pixelSize: root.fontSize
-                        font.family: root.fontFamily
-                        font.bold: true
-                        Layout.rightMargin: 8
-                    }
-
-                    Rectangle {
-                        Layout.preferredWidth: 1
-                        Layout.preferredHeight: 16
-                        Layout.alignment: Qt.AlignVCenter
-                        Layout.leftMargin: 0
-                        Layout.rightMargin: 8
-                        color: root.colMuted
-                    }
-
-                    Text {
-                        text: "CPU: " + cpuUsage + "%"
-                        color: root.colYellow
-                        font.pixelSize: root.fontSize
-                        font.family: root.fontFamily
-                        font.bold: true
-                        Layout.rightMargin: 8
-                    }
-
-                    Rectangle {
-                        Layout.preferredWidth: 1
-                        Layout.preferredHeight: 16
-                        Layout.alignment: Qt.AlignVCenter
-                        Layout.leftMargin: 0
-                        Layout.rightMargin: 8
-                        color: root.colMuted
-                    }
-
-                    Text {
-                        text: "Mem: " + memUsage + "%"
-                        color: root.colCyan
-                        font.pixelSize: root.fontSize
-                        font.family: root.fontFamily
-                        font.bold: true
-                        Layout.rightMargin: 8
-                    }
-
-                    Rectangle {
-                        Layout.preferredWidth: 1
-                        Layout.preferredHeight: 16
-                        Layout.alignment: Qt.AlignVCenter
-                        Layout.leftMargin: 0
-                        Layout.rightMargin: 8
-                        color: root.colMuted
-                    }
-
-                    Text {
-                        text: "Disk: " + diskUsage + "%"
-                        color: root.colBlue
-                        font.pixelSize: root.fontSize
-                        font.family: root.fontFamily
-                        font.bold: true
-                        Layout.rightMargin: 8
-                    }
-
-                    Rectangle {
-                        Layout.preferredWidth: 1
-                        Layout.preferredHeight: 16
-                        Layout.alignment: Qt.AlignVCenter
-                        Layout.leftMargin: 0
-                        Layout.rightMargin: 8
-                        color: root.colMuted
-                    }
-
-                    Text {
-                        text: "Vol: " + volumeLevel + "%"
-                        color: root.colPurple
-                        font.pixelSize: root.fontSize
-                        font.family: root.fontFamily
-                        font.bold: true
-                        Layout.rightMargin: 8
-                    }
-
-                    Rectangle {
-                        Layout.preferredWidth: 1
-                        Layout.preferredHeight: 16
-                        Layout.alignment: Qt.AlignVCenter
-                        Layout.leftMargin: 0
-                        Layout.rightMargin: 8
-                        color: root.colMuted
-                    }
-
+                    // Center: Date/Time
                     Text {
                         id: clockText
                         text: Qt.formatDateTime(new Date(), "ddd, MMM dd - HH:mm")
-                        color: root.colCyan
+                        color: theme.colCyan
                         font.pixelSize: root.fontSize
                         font.family: root.fontFamily
                         font.bold: true
+                        Layout.leftMargin: 8
                         Layout.rightMargin: 8
 
                         Timer {
@@ -404,10 +344,145 @@ ShellRoot {
                         }
                     }
 
+                    // Spotify widget
+                    Rectangle {
+                        Layout.preferredWidth: 1
+                        Layout.preferredHeight: 16
+                        Layout.alignment: Text.AlignVCenter
+                        Layout.leftMargin: 8
+                        Layout.rightMargin: 8
+                        color: theme.colMuted
+                    }
+
+                    Text {
+                        text: (spotifyStatus === "Playing" ? "▶ " : "⏸ ") + 
+                              (spotifyArtist ? spotifyArtist + " - " : "") + spotifyTrack
+                        color: spotifyStatus === "Playing" ? theme.colGreen : theme.colMuted
+                        font.pixelSize: root.fontSize
+                        font.family: root.fontFamily
+                        font.bold: true
+                        Layout.rightMargin: 8
+                        Layout.maximumWidth: 300
+                        elide: Text.ElideRight
+
+                        MouseArea {
+                            anchors.fill: parent
+                            acceptedButtons: Qt.LeftButton | Qt.RightButton | Qt.MiddleButton
+                            
+                            onClicked: (mouse) => {
+                                if (mouse.button === Qt.RightButton) {
+                                    // Skip to next track
+                                    var proc = Qt.createQmlObject('import Quickshell.Io; Process {}', parent)
+                                    proc.command = ["playerctl", "-p", "spotify", "next"]
+                                    proc.running = true
+                                } else if (mouse.button === Qt.LeftButton) {
+                                    // Play/Pause
+                                    var proc = Qt.createQmlObject('import Quickshell.Io; Process {}', parent)
+                                    proc.command = ["playerctl", "-p", "spotify", "play-pause"]
+                                    proc.running = true
+                                } else if (mouse.button === Qt.MiddleButton) {
+                                    // Previous track
+                                    var proc = Qt.createQmlObject('import Quickshell.Io; Process {}', parent)
+                                    proc.command = ["playerctl", "-p", "spotify", "previous"]
+                                    proc.running = true
+                                }
+                            }
+                        }
+                    }
+
+                    Rectangle {
+                        Layout.preferredWidth: 1
+                        Layout.preferredHeight: 16
+                        Layout.alignment: Qt.AlignVCenter
+                        Layout.leftMargin: 0
+                        Layout.rightMargin: 8
+                        color: theme.colMuted
+                    }
+
+                    Text {
+                        text: kernelVersion
+                        color: theme.colRed
+                        font.pixelSize: root.fontSize
+                        font.family: root.fontFamily
+                        font.bold: true
+                        Layout.rightMargin: 8
+                    }
+
+                    Rectangle {
+                        Layout.preferredWidth: 1
+                        Layout.preferredHeight: 16
+                        Layout.alignment: Qt.AlignVCenter
+                        Layout.leftMargin: 0
+                        Layout.rightMargin: 8
+                        color: theme.colMuted
+                    }
+
+                    Text {
+                        text: "CPU: " + cpuUsage + "%"
+                        color: theme.colYellow
+                        font.pixelSize: root.fontSize
+                        font.family: root.fontFamily
+                        font.bold: true
+                        Layout.rightMargin: 8
+                    }
+
+                    Rectangle {
+                        Layout.preferredWidth: 1
+                        Layout.preferredHeight: 16
+                        Layout.alignment: Qt.AlignVCenter
+                        Layout.leftMargin: 0
+                        Layout.rightMargin: 8
+                        color: theme.colMuted
+                    }
+
+                    Text {
+                        text: "Mem: " + memUsage + "%"
+                        color: theme.colCyan
+                        font.pixelSize: root.fontSize
+                        font.family: root.fontFamily
+                        font.bold: true
+                        Layout.rightMargin: 8
+                    }
+
+                    Rectangle {
+                        Layout.preferredWidth: 1
+                        Layout.preferredHeight: 16
+                        Layout.alignment: Qt.AlignVCenter
+                        Layout.leftMargin: 0
+                        Layout.rightMargin: 8
+                        color: theme.colMuted
+                    }
+
+                    Text {
+                        text: "Disk: " + diskUsage + "%"
+                        color: theme.colBlue
+                        font.pixelSize: root.fontSize
+                        font.family: root.fontFamily
+                        font.bold: true
+                        Layout.rightMargin: 8
+                    }
+
+                    Rectangle {
+                        Layout.preferredWidth: 1
+                        Layout.preferredHeight: 16
+                        Layout.alignment: Qt.AlignVCenter
+                        Layout.leftMargin: 0
+                        Layout.rightMargin: 8
+                        color: theme.colMuted
+                    }
+
+                    Text {
+                        text: "Vol: " + volumeLevel + "%"
+                        color: theme.colPurple
+                        font.pixelSize: root.fontSize
+                        font.family: root.fontFamily
+                        font.bold: true
+                        Layout.rightMargin: 8
+                    }
+
                     Item { width: 8 }
                 }
             }
         }
     }
 }
-
