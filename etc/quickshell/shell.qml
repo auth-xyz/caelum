@@ -400,25 +400,7 @@ ShellRoot {
                     }
 
                     Text {
-                        text: kernelVersion
-                        color: theme.colRed
-                        font.pixelSize: root.fontSize
-                        font.family: root.fontFamily
-                        font.bold: true
-                        Layout.rightMargin: 8
-                    }
-
-                    Rectangle {
-                        Layout.preferredWidth: 1
-                        Layout.preferredHeight: 16
-                        Layout.alignment: Qt.AlignVCenter
-                        Layout.leftMargin: 0
-                        Layout.rightMargin: 8
-                        color: theme.colMuted
-                    }
-
-                    Text {
-                        text: "CPU: " + cpuUsage + "%"
+                        text: ": " + cpuUsage + "%"
                         color: theme.colYellow
                         font.pixelSize: root.fontSize
                         font.family: root.fontFamily
@@ -436,7 +418,7 @@ ShellRoot {
                     }
 
                     Text {
-                        text: "Mem: " + memUsage + "%"
+                        text: ": " + memUsage + "%"
                         color: theme.colCyan
                         font.pixelSize: root.fontSize
                         font.family: root.fontFamily
@@ -454,7 +436,7 @@ ShellRoot {
                     }
 
                     Text {
-                        text: "Disk: " + diskUsage + "%"
+                        text: ": " + diskUsage + "%"
                         color: theme.colBlue
                         font.pixelSize: root.fontSize
                         font.family: root.fontFamily
@@ -472,7 +454,7 @@ ShellRoot {
                     }
 
                     Text {
-                        text: "Vol: " + volumeLevel + "%"
+                        text: ": " + volumeLevel + "%"
                         color: theme.colPurple
                         font.pixelSize: root.fontSize
                         font.family: root.fontFamily
