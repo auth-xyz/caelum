@@ -250,7 +250,7 @@ ShellRoot {
 
                     // Workspaces
                     Repeater {
-                        model: 9
+                        model: 5
 
                         Rectangle {
                             Layout.preferredWidth: 20
@@ -399,8 +399,10 @@ ShellRoot {
                         color: theme.colMuted
                     }
 
+
+
                     Text {
-                        text: ": " + cpuUsage + "%"
+                        text: " :" + cpuUsage + "%"
                         color: theme.colYellow
                         font.pixelSize: root.fontSize
                         font.family: root.fontFamily
@@ -408,17 +410,8 @@ ShellRoot {
                         Layout.rightMargin: 8
                     }
 
-                    Rectangle {
-                        Layout.preferredWidth: 1
-                        Layout.preferredHeight: 16
-                        Layout.alignment: Qt.AlignVCenter
-                        Layout.leftMargin: 0
-                        Layout.rightMargin: 8
-                        color: theme.colMuted
-                    }
-
                     Text {
-                        text: ": " + memUsage + "%"
+                        text: " :" + memUsage + "%"
                         color: theme.colCyan
                         font.pixelSize: root.fontSize
                         font.family: root.fontFamily
@@ -426,17 +419,8 @@ ShellRoot {
                         Layout.rightMargin: 8
                     }
 
-                    Rectangle {
-                        Layout.preferredWidth: 1
-                        Layout.preferredHeight: 16
-                        Layout.alignment: Qt.AlignVCenter
-                        Layout.leftMargin: 0
-                        Layout.rightMargin: 8
-                        color: theme.colMuted
-                    }
-
                     Text {
-                        text: ": " + diskUsage + "%"
+                        text: " :" + diskUsage + "%"
                         color: theme.colBlue
                         font.pixelSize: root.fontSize
                         font.family: root.fontFamily
@@ -444,17 +428,8 @@ ShellRoot {
                         Layout.rightMargin: 8
                     }
 
-                    Rectangle {
-                        Layout.preferredWidth: 1
-                        Layout.preferredHeight: 16
-                        Layout.alignment: Qt.AlignVCenter
-                        Layout.leftMargin: 0
-                        Layout.rightMargin: 8
-                        color: theme.colMuted
-                    }
-
                     Text {
-                        text: ": " + volumeLevel + "%"
+                        text: " :" + volumeLevel + "%"
                         color: theme.colPurple
                         font.pixelSize: root.fontSize
                         font.family: root.fontFamily
