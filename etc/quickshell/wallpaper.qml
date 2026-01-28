@@ -54,7 +54,8 @@ ShellRoot {
     FloatingWindow {
         id: wallpaperPicker
         visible: true
-        
+
+        title: "qswp"
         width: 1000
         height: 700
         

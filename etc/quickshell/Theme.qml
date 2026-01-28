@@ -10,4 +10,25 @@ QtObject {
     readonly property color colYellow: "#e0af68"
     readonly property color colBlue: "#7aa2f7"
     readonly property color colGreen: "#9ece6a"
+
+    // Icons
+    readonly property string cpuIcon: ""
+    readonly property string memIcon: ""
+    readonly property string diskIcon: ""
+
+    readonly property string volMax: ""
+    readonly property string volMin: ""
+    readonly property string volMute: ""
+
+    readonly property string batteryFull: ""
+    readonly property string batteryHalf: ""
+    readonly property string batteryCritical: ""
+
+    // For bluetooth but :shrug:
+    readonly property string btKeyboard: "󰌌"
+    readonly property string btMouse: "󰍽"
+    readonly property string btHeadset: ""
+    readonly property string btController: "󰊴"
+    readonly property string btGui: ""
+
 }

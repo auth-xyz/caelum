@@ -24,7 +24,6 @@ ShellRoot {
     property int volumeLevel: 0
     property string activeWindow: "Window"
     property string currentLayout: "Tile"
-    property bool bluetoothVisible: false
 
     // Spotify properties
     property string spotifyTrack: "No track"
@@ -45,13 +44,6 @@ ShellRoot {
             }
         }
         Component.onCompleted: running = true
-    }
-
-    // Bluetooth 
-    Loader {
-        id: bluetoothLoader
-        active: bluetoothVisible
-        source: "bluetooth.qml"
     }
 
     // CPU usage
@@ -407,39 +399,7 @@ ShellRoot {
                         color: theme.colMuted
                     }
 
-                    // Bluetooth button
-                    Rectangle {
-                        Layout.preferredHeight: parent.height
-                        Layout.preferredWidth: btLayout.width + 16
-                        color: btMouseArea.containsMouse ? theme.colMuted : "transparent"
-                        opacity: btMouseArea.containsMouse ? 0.3 : 1.0
-                        radius: 4
 
-                        Behavior on opacity {
-                            NumberAnimation { duration: 150 }
-                        }
-
-                        RowLayout {
-                            id: btLayout
-                            anchors.centerIn: parent
-                            spacing: 0
-
-                            Text {
-                                text: theme.btGui
-                                color: theme.colCyan
-                                font.pixelSize: root.fontSize
-                                font.family: root.fontFamily
-                                font.bold: true
-                            }
-                        }
-
-                        MouseArea {
-                            id: btMouseArea
-                            anchors.fill: parent
-                            hoverEnabled: true
-                            onClicked: bluetoothVisible = !bluetoothVisible
-                        }
-                    }
 
                     Text {
                         text: " " + theme.cpuIcon + ":" + cpuUsage + "%"
