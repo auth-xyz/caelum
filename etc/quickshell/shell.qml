@@ -214,23 +214,7 @@ ShellRoot {
                 id: mainPanel
                 anchors.fill: parent
                 color: Theme.colBg
-                
-                // Rounded bottom corners only for Dynamic Island effect
-                Rectangle {
-                    anchors.fill: parent
-                    color: Theme.colBg
-                    radius: 20
-                    
-                    // Cut off top half to only have bottom rounded corners
-                    Rectangle {
-                        anchors.left: parent.left
-                        anchors.right: parent.right
-                        anchors.top: parent.top
-                        height: parent.height / 2
-                        color: Theme.colBg
-                        radius: 20
-                    }
-                }
+                radius: 8
                 
                 // Subtle shadow effect
                 layer.enabled: true
@@ -378,6 +362,7 @@ ShellRoot {
                             Layout.maximumWidth: 300
                             Layout.leftMargin: 4
                             Layout.rightMargin: 4
+                            Layout.alignment: Qt.AlignVCenter
                             elide: Text.ElideRight
                         }
                     }
@@ -428,7 +413,7 @@ ShellRoot {
 
                         // Spotify widget
                         Rectangle {
-                            Layout.preferredHeight: parent.height
+                            Layout.preferredHeight: 24
                             Layout.preferredWidth: spotifyLayout.implicitWidth + 12
                             radius: 4
                             color: spotifyStatus === "Playing" ? Theme.colGreen : Theme.colBg
