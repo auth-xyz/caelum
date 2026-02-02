@@ -34,4 +34,9 @@ QtObject {
     readonly property string btController: "󰊴"
     readonly property string btGui: ""
 
+
+    // hey adding icons to the bar
+    readonly property string windowActive: "󰔶"
+    readonly property string windowEnabled: "" // couldn't think of another word
+    readonly property string windowInactive: "󰔷"
 }

@@ -11,7 +11,7 @@ ShellRoot {
 
     // Font
     property string fontFamily: "JetBrainsMono Nerd Font Propo"
-    property int fontSize: 16
+    property int fontSize: 15
 
     // System info properties
     property string kernelVersion: "Linux"
@@ -31,6 +31,9 @@ ShellRoot {
     property var lastCpuIdle: 0
     property var lastCpuTotal: 0
     property int connectedCount: 0 
+
+    // Stats expansion state
+    property bool statsExpanded: false
 
     // Bluetooth 
     Loader {
@@ -174,8 +177,6 @@ ShellRoot {
         }
     }
 
-
-
     // Backup timer for window/layout (catches edge cases)
     Timer {
         interval: 200
@@ -199,229 +200,489 @@ ShellRoot {
                 right: true
             }
 
-            implicitHeight: 40
-            color: Theme.colBg
+            implicitHeight: 35
+            color: "transparent"
 
             margins {
                 top: 0
                 bottom: 0
-                left: 0
-                right: 0
+                left: 8
+                right: 8
             }
 
             Rectangle {
+                id: mainPanel
                 anchors.fill: parent
                 color: Theme.colBg
-
-                RowLayout {
+                
+                // Rounded bottom corners only for Dynamic Island effect
+                Rectangle {
                     anchors.fill: parent
-                    spacing: 0
+                    color: Theme.colBg
+                    radius: 20
+                    
+                    // Cut off top half to only have bottom rounded corners
+                    Rectangle {
+                        anchors.left: parent.left
+                        anchors.right: parent.right
+                        anchors.top: parent.top
+                        height: parent.height / 2
+                        color: Theme.colBg
+                        radius: 20
+                    }
+                }
+                
+                // Subtle shadow effect
+                layer.enabled: true
+                layer.effect: ShaderEffect {
+                    property color shadowColor: Qt.rgba(0, 0, 0, 0.25)
+                }
 
-                    Item { width: 8 }
+                // LEFT MODULE
+                Rectangle {
+                    id: leftModule
+                    anchors {
+                        left: parent.left
+                        top: parent.top
+                        bottom: parent.bottom
+                        margins: 4
+                    }
+                    width: leftLayout.implicitWidth + 16
+                    color: Theme.colBg
+                    radius: 8
 
-                    // Workspaces
-                    Repeater {
-                        model: 5
+                    RowLayout {
+                        id: leftLayout
+                        anchors.fill: parent
+                        anchors.margins: 4
+                        spacing: 5
+
+                        // Workspaces
+                        Item {
+                            Layout.preferredWidth: 5 * 28 + 4 * 4 + 28  // base width + spacing + extra for expansion
+                            Layout.preferredHeight: 27
+
+                            Repeater {
+                                model: 5
+
+                                Rectangle {
+                                    id: workspaceRect
+                                    
+                                    property var workspace: Hyprland.workspaces.values.find(ws => ws.id === index + 1) ?? null
+                                    property bool isActive: Hyprland.focusedWorkspace?.id === (index + 1)
+                                    property bool hasWindows: workspace !== null
+                                    
+                                    width: isActive ? 56 : 28
+                                    height: isActive ? 27 : 24
+                                    y: isActive ? 0 : 1.5
+                                    
+                                    // Calculate x position based on active workspace
+                                    x: {
+                                        var activeIndex = -1
+                                        
+                                        // Find which workspace is active
+                                        for (var i = 0; i < 5; i++) {
+                                            if (Hyprland.focusedWorkspace?.id === (i + 1)) {
+                                                activeIndex = i
+                                                break
+                                            }
+                                        }
+                                        
+                                        // If no active workspace, use normal positioning
+                                        if (activeIndex === -1) {
+                                            return index * (28 + 4)
+                                        }
+                                        
+                                        // Calculate position based on whether we're before, at, or after active
+                                        var pos = 0
+                                        for (var j = 0; j < index; j++) {
+                                            if (j === activeIndex) {
+                                                pos += 56 + 4  // active workspace is wider
+                                            } else {
+                                                pos += 28 + 4  // normal workspace
+                                            }
+                                        }
+                                        
+                                        return pos
+                                    }
+                                    
+                                    color: isActive ? Theme.colBlue : (workspaceMouseArea.containsMouse ? Theme.colMuted : "transparent")
+                                    radius: 6
+
+                                    Behavior on color {
+                                        ColorAnimation { duration: 200 }
+                                    }
+
+                                    Behavior on width {
+                                        NumberAnimation { duration: 250; easing.type: Easing.OutCubic }
+                                    }
+                                    
+                                    Behavior on height {
+                                        NumberAnimation { duration: 250; easing.type: Easing.OutCubic }
+                                    }
+                                    
+                                    Behavior on x {
+                                        NumberAnimation { duration: 250; easing.type: Easing.OutCubic }
+                                    }
+                                    
+                                    Behavior on y {
+                                        NumberAnimation { duration: 250; easing.type: Easing.OutCubic }
+                                    }
+
+                                    Text {
+                                        text: {
+                                            if (workspaceRect.isActive) return Theme.windowActive
+                                            if (workspaceRect.hasWindows) return Theme.windowEnabled
+                                            if (!workspaceRect.isActive && !workspaceRect.hasWindows) return Theme.windowInactive
+                                            return ""
+                                        }
+                                        color: workspaceRect.isActive ? Theme.colBg : (workspaceRect.hasWindows ? Theme.colFg : Theme.colMuted)
+                                        font.pixelSize: workspaceRect.isActive ? 13 : 10
+                                        font.family: root.fontFamily
+                                        font.weight: workspaceRect.isActive ? Font.Bold : Font.Normal
+                                        anchors.centerIn: parent
+                                        
+                                        Behavior on color {
+                                            ColorAnimation { duration: 150 }
+                                        }
+                                        
+                                        Behavior on font.pixelSize {
+                                            NumberAnimation { duration: 150 }
+                                        }
+                                    }
+
+                                    MouseArea {
+                                        id: workspaceMouseArea
+                                        anchors.fill: parent
+                                        hoverEnabled: true
+                                        onClicked: Hyprland.dispatch("workspace " + (index + 1))
+                                    }
+                                }
+                            }
+                        }
 
                         Rectangle {
-                            Layout.preferredWidth: 20
+                            Layout.preferredWidth: 1
+                            Layout.preferredHeight: 19
+                            color: Theme.colMuted
+                            opacity: 0.5
+                        }
+
+                        // Active Window Title
+                        Text {
+                            text: activeWindow
+                            color: Theme.colPurple
+                            font.pixelSize: root.fontSize
+                            font.family: root.fontFamily
+                            font.weight: Font.DemiBold
+                            Layout.maximumWidth: 300
+                            Layout.leftMargin: 4
+                            Layout.rightMargin: 4
+                            elide: Text.ElideRight
+                        }
+                    }
+                }
+
+                // CENTER MODULE - ABSOLUTELY CENTERED
+                Rectangle {
+                    id: centerModule
+                    anchors {
+                        horizontalCenter: parent.horizontalCenter
+                        top: parent.top
+                        bottom: parent.bottom
+                        margins: 4
+                    }
+                    width: centerLayout.implicitWidth + 16
+                    color: Theme.colBg
+                    radius: 8
+
+                    RowLayout {
+                        id: centerLayout
+                        anchors.fill: parent
+                        anchors.margins: 4
+                        spacing: 8
+
+                        // Date/Time
+                        Text {
+                            id: clockText
+                            text: Qt.formatDateTime(new Date(), "HH:mm  ddd, dd/MM")
+                            color: Theme.colFg
+                            font.pixelSize: root.fontSize
+                            font.family: root.fontFamily
+                            font.weight: Font.Bold
+
+                            Timer {
+                                interval: 1000
+                                running: true
+                                repeat: true
+                                onTriggered: clockText.text = Qt.formatDateTime(new Date(), "HH:mm  ddd, dd/MM")
+                            }
+                        }
+
+                        Rectangle {
+                            Layout.preferredWidth: 1
+                            Layout.preferredHeight: 16
+                            color: Theme.colMuted
+                            opacity: 0.5
+                        }
+
+                        // Spotify widget
+                        Rectangle {
                             Layout.preferredHeight: parent.height
-                            color: "transparent"
-
-                            property var workspace: Hyprland.workspaces.values.find(ws => ws.id === index + 1) ?? null
-                            property bool isActive: Hyprland.focusedWorkspace?.id === (index + 1)
-                            property bool hasWindows: workspace !== null
-
-                            Text {
-                                text: index + 1
-                                color: parent.isActive ? Theme.colCyan : (parent.hasWindows ? Theme.colFg : Theme.colMuted)
-                                font.pixelSize: root.fontSize
-                                font.family: root.fontFamily
-                                font.bold: true
-                                anchors.centerIn: parent
+                            Layout.preferredWidth: spotifyLayout.implicitWidth + 12
+                            radius: 4
+                            color: spotifyStatus === "Playing" ? Theme.colGreen : Theme.colBg
+                            
+                            Behavior on color {
+                                ColorAnimation { duration: 300 }
                             }
 
-                            Rectangle {
-                                width: 20
-                                height: 3
-                                color: parent.isActive ? Theme.colPurple : Theme.colBg
-                                anchors.horizontalCenter: parent.horizontalCenter
-                                anchors.bottom: parent.bottom
+                            RowLayout {
+                                id: spotifyLayout
+                                anchors.centerIn: parent
+                                spacing: 6
+
+                                Text {
+                                    text: (spotifyArtist ? spotifyArtist + " - " : "") + spotifyTrack
+                                    color: spotifyStatus === "Playing" ? Theme.colBg : Theme.colMuted
+                                    font.pixelSize: root.fontSize
+                                    font.family: root.fontFamily
+                                    font.weight: spotifyStatus === "Playing" ? Font.Bold : Font.DemiBold
+                                    Layout.maximumWidth: 300
+                                    elide: Text.ElideRight
+                                    
+                                    Behavior on color {
+                                        ColorAnimation { duration: 300 }
+                                    }
+                                    
+                                    Behavior on font.weight {
+                                        NumberAnimation { duration: 300 }
+                                    }
+                                }
                             }
 
                             MouseArea {
                                 anchors.fill: parent
-                                onClicked: Hyprland.dispatch("workspace " + (index + 1))
-                            }
-                        }
-                    }
-
-                    Rectangle {
-                        Layout.preferredWidth: 1
-                        Layout.preferredHeight: 16
-                        Layout.alignment: Qt.AlignVCenter
-                        Layout.leftMargin: 8
-                        Layout.rightMargin: 8
-                        color: Theme.colMuted
-                    }
-
-                    Text {
-                        text: activeWindow
-                        color: Theme.colPurple
-                        font.pixelSize: root.fontSize
-                        font.family: root.fontFamily
-                        font.bold: true
-                        Layout.fillWidth: true
-                        Layout.leftMargin: 8
-                        elide: Text.ElideRight
-                        maximumLineCount: 1
-                    }
-
-                    // Center: Date/Time
-                    Text {
-                        id: clockText
-                        text: Qt.formatDateTime(new Date(), "ddd, MMM dd - HH:mm")
-                        color: Theme.colCyan
-                        font.pixelSize: root.fontSize
-                        font.family: root.fontFamily
-                        font.bold: true
-                        Layout.leftMargin: 8
-                        Layout.rightMargin: 8
-
-                        Timer {
-                            interval: 1000
-                            running: true
-                            repeat: true
-                            onTriggered: clockText.text = Qt.formatDateTime(new Date(), "ddd, MMM dd - HH:mm")
-                        }
-                    }
-
-                    // Spotify widget
-                    Rectangle {
-                        Layout.preferredWidth: 1
-                        Layout.preferredHeight: 16
-                        Layout.alignment: Text.AlignVCenter
-                        Layout.leftMargin: 8
-                        Layout.rightMargin: 8
-                        color: Theme.colMuted
-                    }
-
-                    Text {
-                        text: (spotifyStatus === "Playing" ? " " : " ") + 
-                              (spotifyArtist ? spotifyArtist + " - " : "") + spotifyTrack
-                        color: spotifyStatus === "Playing" ? Theme.colGreen : Theme.colMuted
-                        font.pixelSize: root.fontSize
-                        font.family: root.fontFamily
-                        font.bold: true
-                        Layout.rightMargin: 8
-                        Layout.maximumWidth: 300
-                        elide: Text.ElideRight
-
-                        MouseArea {
-                            anchors.fill: parent
-                            acceptedButtons: Qt.LeftButton | Qt.RightButton | Qt.MiddleButton
-                            
-                            onClicked: (mouse) => {
-                                if (mouse.button === Qt.RightButton) {
-                                    // Skip to next track
-                                    var proc = Qt.createQmlObject('import Quickshell.Io; Process {}', parent)
-                                    proc.command = ["playerctl", "-p", "spotify", "next"]
-                                    proc.running = true
-                                } else if (mouse.button === Qt.LeftButton) {
-                                    // Play/Pause
-                                    var proc = Qt.createQmlObject('import Quickshell.Io; Process {}', parent)
-                                    proc.command = ["playerctl", "-p", "spotify", "play-pause"]
-                                    proc.running = true
-                                } else if (mouse.button === Qt.MiddleButton) {
-                                    // Previous track
-                                    var proc = Qt.createQmlObject('import Quickshell.Io; Process {}', parent)
-                                    proc.command = ["playerctl", "-p", "spotify", "previous"]
-                                    proc.running = true
+                                acceptedButtons: Qt.LeftButton | Qt.RightButton | Qt.MiddleButton
+                                
+                                onClicked: (mouse) => {
+                                    if (mouse.button === Qt.RightButton) {
+                                        var proc = Qt.createQmlObject('import Quickshell.Io; Process {}', parent)
+                                        proc.command = ["playerctl", "-p", "spotify", "next"]
+                                        proc.running = true
+                                    } else if (mouse.button === Qt.LeftButton) {
+                                        var proc = Qt.createQmlObject('import Quickshell.Io; Process {}', parent)
+                                        proc.command = ["playerctl", "-p", "spotify", "play-pause"]
+                                        proc.running = true
+                                    } else if (mouse.button === Qt.MiddleButton) {
+                                        var proc = Qt.createQmlObject('import Quickshell.Io; Process {}', parent)
+                                        proc.command = ["playerctl", "-p", "spotify", "previous"]
+                                        proc.running = true
+                                    }
                                 }
                             }
                         }
                     }
+                }
 
-                    Rectangle {
-                        Layout.preferredWidth: 1
-                        Layout.preferredHeight: 16
-                        Layout.alignment: Qt.AlignVCenter
-                        Layout.leftMargin: 0
-                        Layout.rightMargin: 8
-                        color: Theme.colMuted
+                // RIGHT MODULE
+                Rectangle {
+                    id: rightModule
+                    anchors {
+                        right: parent.right
+                        top: parent.top
+                        bottom: parent.bottom
+                        margins: 4
                     }
+                    width: rightLayout.implicitWidth + 16
+                    color: Theme.colBg
+                    radius: 8
 
-                    // Bluetooth button
-                    Rectangle {
-                        Layout.preferredHeight: parent.height
-                        Layout.preferredWidth: btLayout.width + 16
-                        color: btMouseArea.containsMouse ? Theme.colMuted : "transparent"
-                        opacity: btMouseArea.containsMouse ? 0.3 : 1.0
-                        radius: 4
+                    RowLayout {
+                        id: rightLayout
+                        anchors.fill: parent
+                        anchors.margins: 4
+                        spacing: 5
 
-                        Behavior on opacity {
-                            NumberAnimation { duration: 150 }
-                        }
+                        // System stats (expandable)
+                        Rectangle {
+                            Layout.fillHeight: true
+                            Layout.preferredWidth: statsLayout.implicitWidth + 12
+                            color: statsMouseArea.containsMouse ? Qt.rgba(0.2, 0.4, 0.8, 0.15) : "transparent"
+                            radius: 6
+                            border.width: statsExpanded ? 1 : 0
+                            border.color: Qt.rgba(0.3, 0.5, 1.0, 0.3)
+                            
+                            Behavior on color {
+                                ColorAnimation { duration: 150 }
+                            }
+                            
+                            Behavior on border.width {
+                                NumberAnimation { duration: 200 }
+                            }
+                            
+                            Behavior on Layout.preferredWidth {
+                                NumberAnimation { duration: 200; easing.type: Easing.OutCubic }
+                            }
 
-                        RowLayout {
-                            id: btLayout
-                            anchors.centerIn: parent
-                            spacing: 0
+                            RowLayout {
+                                id: statsLayout
+                                anchors.centerIn: parent
+                                spacing: 8
 
-                            Text {
-                                text: Theme.btGui + ":" + root.connectedCount 
-                                color: Theme.colBlue
-                                font.pixelSize: root.fontSize
-                                font.family: root.fontFamily
-                                font.bold: true
+                                Text {
+                                    text: Theme.cpuIcon + " " + cpuUsage + "%"
+                                    color: Theme.colYellow
+                                    font.pixelSize: root.fontSize
+                                    font.family: root.fontFamily
+                                    font.weight: Font.DemiBold
+                                    visible: statsExpanded || !statsExpanded
+                                }
+
+                                Text {
+                                    text: Theme.memIcon + " " + memUsage + "%"
+                                    color: Theme.colCyan
+                                    font.pixelSize: root.fontSize
+                                    font.family: root.fontFamily
+                                    font.weight: Font.DemiBold
+                                    visible: statsExpanded
+                                    opacity: statsExpanded ? 1 : 0
+                                    
+                                    Behavior on opacity {
+                                        NumberAnimation { duration: 200 }
+                                    }
+                                }
+
+                                Text {
+                                    text: Theme.diskIcon + " " + diskUsage + "%"
+                                    color: Theme.colOrange
+                                    font.pixelSize: root.fontSize
+                                    font.family: root.fontFamily
+                                    font.weight: Font.DemiBold
+                                    visible: statsExpanded
+                                    opacity: statsExpanded ? 1 : 0
+                                    
+                                    Behavior on opacity {
+                                        NumberAnimation { duration: 200 }
+                                    }
+                                }
+
+                                Text {
+                                    text: Theme.volMax + " " + volumeLevel + "%"
+                                    color: Theme.colPurple
+                                    font.pixelSize: root.fontSize
+                                    font.family: root.fontFamily
+                                    font.weight: Font.DemiBold
+                                    visible: statsExpanded
+                                    opacity: statsExpanded ? 1 : 0
+                                    
+                                    Behavior on opacity {
+                                        NumberAnimation { duration: 200 }
+                                    }
+                                }
+                            }
+
+                            MouseArea {
+                                id: statsMouseArea
+                                anchors.fill: parent
+                                hoverEnabled: true
+                                onClicked: statsExpanded = !statsExpanded
                             }
                         }
 
-                        MouseArea {
-                            id: btMouseArea
-                            anchors.fill: parent
-                            hoverEnabled: true
-                            onClicked: bluetoothVisible = !bluetoothVisible
+                        Rectangle {
+                            Layout.preferredWidth: 1
+                            Layout.preferredHeight: 16
+                            color: Theme.colMuted
+                            opacity: 0.5
+                        }
+
+                        // Bluetooth button
+                        Rectangle {
+                            Layout.fillHeight: true
+                            Layout.preferredWidth: btLayout.implicitWidth + 12
+                            color: btMouseArea.containsMouse ? Theme.colMuted : "transparent"
+                            radius: 6
+                            border.width: root.connectedCount > 0 ? 1 : 0
+                            border.color: Qt.rgba(0.2, 0.6, 1.0, 0.5)
+                            
+                            Behavior on color {
+                                ColorAnimation { duration: 150 }
+                            }
+                            
+                            Behavior on border.width {
+                                NumberAnimation { duration: 200 }
+                            }
+
+                            RowLayout {
+                                id: btLayout
+                                anchors.centerIn: parent
+                                spacing: 4
+
+                                Text {
+                                    text: Theme.btGui
+                                    color: Theme.colBlue
+                                    font.pixelSize: root.fontSize
+                                    font.family: root.fontFamily
+                                    font.weight: Font.DemiBold
+                                }
+                                
+                                Text {
+                                    text: root.connectedCount > 0 ? root.connectedCount : ""
+                                    color: Theme.colBlue
+                                    font.pixelSize: root.fontSize - 2
+                                    font.family: root.fontFamily
+                                    font.weight: Font.DemiBold
+                                    visible: root.connectedCount > 0
+                                }
+                            }
+
+                            MouseArea {
+                                id: btMouseArea
+                                anchors.fill: parent
+                                hoverEnabled: true
+                                onClicked: bluetoothVisible = !bluetoothVisible
+                            }
+                        }
+
+                        Rectangle {
+                            Layout.preferredWidth: 1
+                            Layout.preferredHeight: 16
+                            color: Theme.colMuted
+                            opacity: 0.5
+                        }
+
+                        // Power button
+                        Rectangle {
+                            Layout.preferredWidth: 28
+                            Layout.fillHeight: true
+                            color: powerMouseArea.containsMouse ? Theme.colRed : "transparent"
+                            radius: 6
+                            
+                            Behavior on color {
+                                ColorAnimation { duration: 150 }
+                            }
+
+                            Text {
+                                text: "⏻"
+                                color: powerMouseArea.containsMouse ? Theme.colBg : Theme.colFg
+                                font.pixelSize: root.fontSize
+                                font.family: root.fontFamily
+                                anchors.centerIn: parent
+                                
+                                Behavior on color {
+                                    ColorAnimation { duration: 150 }
+                                }
+                            }
+
+                            MouseArea {
+                                id: powerMouseArea
+                                anchors.fill: parent
+                                hoverEnabled: true
+                                // Add power menu action here
+                            }
                         }
                     }
-
-                    Text {
-                        text: " " + Theme.cpuIcon + ":" + cpuUsage + "%"
-                        color: Theme.colYellow
-                        font.pixelSize: root.fontSize
-                        font.family: root.fontFamily
-                        font.bold: true
-                        Layout.rightMargin: 8
-                    }
-
-                    Text {
-                        text: " " + Theme.memIcon + ":" + memUsage + "%"
-                        color: Theme.colCyan
-                        font.pixelSize: root.fontSize
-                        font.family: root.fontFamily
-                        font.bold: true
-                        Layout.rightMargin: 8
-                    }
-
-                    Text {
-                        text: " " + Theme.diskIcon + ":" + diskUsage + "%"
-                        color: Theme.colOrange
-                        font.pixelSize: root.fontSize
-                        font.family: root.fontFamily
-                        font.bold: true
-                        Layout.rightMargin: 8
-                    }
-
-                    Text {
-                        text: " " + Theme.volMax + ":" + volumeLevel + "%"
-                        color: Theme.colPurple
-                        font.pixelSize: root.fontSize
-                        font.family: root.fontFamily
-                        font.bold: true
-                        Layout.rightMargin: 8
-                    }
-
-                    Item { width: 8 }
                 }
             }
         }
