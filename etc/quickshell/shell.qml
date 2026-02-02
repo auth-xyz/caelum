@@ -2,15 +2,12 @@ import Quickshell
 import Quickshell.Wayland
 import Quickshell.Io
 import Quickshell.Hyprland
+import Quickshell.Bluetooth
 import QtQuick
 import QtQuick.Layouts
 
 ShellRoot {
     id: root
-
-    Theme {
-        id: theme
-    }
 
     // Font
     property string fontFamily: "JetBrainsMono Nerd Font Propo"
@@ -23,7 +20,6 @@ ShellRoot {
     property int diskUsage: 0
     property int volumeLevel: 0
     property string activeWindow: "Window"
-    property string currentLayout: "Tile"
     property bool bluetoothVisible: false
 
     // Spotify properties
@@ -34,24 +30,13 @@ ShellRoot {
     // CPU tracking
     property var lastCpuIdle: 0
     property var lastCpuTotal: 0
-
-    // Kernel version
-    Process {
-        id: kernelProc
-        command: ["uname", "-r"]
-        stdout: SplitParser {
-            onRead: data => {
-                if (data) kernelVersion = data.trim()
-            }
-        }
-        Component.onCompleted: running = true
-    }
+    property int connectedCount: 0 
 
     // Bluetooth 
     Loader {
         id: bluetoothLoader
         active: bluetoothVisible
-        source: "bluetooth.qml"
+        source: "widgets/bluetooth.qml"
     }
 
     // CPU usage
@@ -148,20 +133,6 @@ ShellRoot {
         Component.onCompleted: running = true
     }
 
-    // Current layout (Hyprland: dwindle/master/floating)
-    Process {
-        id: layoutProc
-        command: ["sh", "-c", "hyprctl activewindow -j | jq -r 'if .floating then \"Floating\" elif .fullscreen == 1 then \"Fullscreen\" else \"Tiled\" end'"]
-        stdout: SplitParser {
-            onRead: data => {
-                if (data && data.trim()) {
-                    currentLayout = data.trim()
-                }
-            }
-        }
-        Component.onCompleted: running = true
-    }
-
     // Spotify metadata
     Process {
         id: spotifyProc
@@ -203,14 +174,7 @@ ShellRoot {
         }
     }
 
-    // Event-based updates for window/layout (instant)
-    Connections {
-        target: Hyprland
-        function onRawEvent(event) {
-            windowProc.running = true
-            layoutProc.running = true
-        }
-    }
+
 
     // Backup timer for window/layout (catches edge cases)
     Timer {
@@ -219,7 +183,6 @@ ShellRoot {
         repeat: true
         onTriggered: {
             windowProc.running = true
-            layoutProc.running = true
         }
     }
 
@@ -237,7 +200,7 @@ ShellRoot {
             }
 
             implicitHeight: 40
-            color: theme.colBg
+            color: Theme.colBg
 
             margins {
                 top: 0
@@ -248,7 +211,7 @@ ShellRoot {
 
             Rectangle {
                 anchors.fill: parent
-                color: theme.colBg
+                color: Theme.colBg
 
                 RowLayout {
                     anchors.fill: parent
@@ -271,7 +234,7 @@ ShellRoot {
 
                             Text {
                                 text: index + 1
-                                color: parent.isActive ? theme.colCyan : (parent.hasWindows ? theme.colCyan : theme.colMuted)
+                                color: parent.isActive ? Theme.colCyan : (parent.hasWindows ? Theme.colFg : Theme.colMuted)
                                 font.pixelSize: root.fontSize
                                 font.family: root.fontFamily
                                 font.bold: true
@@ -281,7 +244,7 @@ ShellRoot {
                             Rectangle {
                                 width: 20
                                 height: 3
-                                color: parent.isActive ? theme.colPurple : theme.colBg
+                                color: parent.isActive ? Theme.colPurple : Theme.colBg
                                 anchors.horizontalCenter: parent.horizontalCenter
                                 anchors.bottom: parent.bottom
                             }
@@ -299,31 +262,12 @@ ShellRoot {
                         Layout.alignment: Qt.AlignVCenter
                         Layout.leftMargin: 8
                         Layout.rightMargin: 8
-                        color: theme.colMuted
-                    }
-
-                    Text {
-                        text: currentLayout
-                        color: theme.colFg
-                        font.pixelSize: root.fontSize
-                        font.family: root.fontFamily
-                        font.bold: true
-                        Layout.leftMargin: 5
-                        Layout.rightMargin: 5
-                    }
-
-                    Rectangle {
-                        Layout.preferredWidth: 1
-                        Layout.preferredHeight: 16
-                        Layout.alignment: Qt.AlignVCenter
-                        Layout.leftMargin: 2
-                        Layout.rightMargin: 8
-                        color: theme.colMuted
+                        color: Theme.colMuted
                     }
 
                     Text {
                         text: activeWindow
-                        color: theme.colPurple
+                        color: Theme.colPurple
                         font.pixelSize: root.fontSize
                         font.family: root.fontFamily
                         font.bold: true
@@ -337,7 +281,7 @@ ShellRoot {
                     Text {
                         id: clockText
                         text: Qt.formatDateTime(new Date(), "ddd, MMM dd - HH:mm")
-                        color: theme.colCyan
+                        color: Theme.colCyan
                         font.pixelSize: root.fontSize
                         font.family: root.fontFamily
                         font.bold: true
@@ -359,13 +303,13 @@ ShellRoot {
                         Layout.alignment: Text.AlignVCenter
                         Layout.leftMargin: 8
                         Layout.rightMargin: 8
-                        color: theme.colMuted
+                        color: Theme.colMuted
                     }
 
                     Text {
                         text: (spotifyStatus === "Playing" ? " " : " ") + 
                               (spotifyArtist ? spotifyArtist + " - " : "") + spotifyTrack
-                        color: spotifyStatus === "Playing" ? theme.colGreen : theme.colMuted
+                        color: spotifyStatus === "Playing" ? Theme.colGreen : Theme.colMuted
                         font.pixelSize: root.fontSize
                         font.family: root.fontFamily
                         font.bold: true
@@ -404,14 +348,14 @@ ShellRoot {
                         Layout.alignment: Qt.AlignVCenter
                         Layout.leftMargin: 0
                         Layout.rightMargin: 8
-                        color: theme.colMuted
+                        color: Theme.colMuted
                     }
 
                     // Bluetooth button
                     Rectangle {
                         Layout.preferredHeight: parent.height
                         Layout.preferredWidth: btLayout.width + 16
-                        color: btMouseArea.containsMouse ? theme.colMuted : "transparent"
+                        color: btMouseArea.containsMouse ? Theme.colMuted : "transparent"
                         opacity: btMouseArea.containsMouse ? 0.3 : 1.0
                         radius: 4
 
@@ -425,8 +369,8 @@ ShellRoot {
                             spacing: 0
 
                             Text {
-                                text: theme.btGui
-                                color: theme.colCyan
+                                text: Theme.btGui + ":" + root.connectedCount 
+                                color: Theme.colBlue
                                 font.pixelSize: root.fontSize
                                 font.family: root.fontFamily
                                 font.bold: true
@@ -442,8 +386,8 @@ ShellRoot {
                     }
 
                     Text {
-                        text: " " + theme.cpuIcon + ":" + cpuUsage + "%"
-                        color: theme.colYellow
+                        text: " " + Theme.cpuIcon + ":" + cpuUsage + "%"
+                        color: Theme.colYellow
                         font.pixelSize: root.fontSize
                         font.family: root.fontFamily
                         font.bold: true
@@ -451,8 +395,8 @@ ShellRoot {
                     }
 
                     Text {
-                        text: " " + theme.memIcon + ":" + memUsage + "%"
-                        color: theme.colCyan
+                        text: " " + Theme.memIcon + ":" + memUsage + "%"
+                        color: Theme.colCyan
                         font.pixelSize: root.fontSize
                         font.family: root.fontFamily
                         font.bold: true
@@ -460,8 +404,8 @@ ShellRoot {
                     }
 
                     Text {
-                        text: " " + theme.diskIcon + ":" + diskUsage + "%"
-                        color: theme.colBlue
+                        text: " " + Theme.diskIcon + ":" + diskUsage + "%"
+                        color: Theme.colOrange
                         font.pixelSize: root.fontSize
                         font.family: root.fontFamily
                         font.bold: true
@@ -469,8 +413,8 @@ ShellRoot {
                     }
 
                     Text {
-                        text: " " + theme.volMax + ":" + volumeLevel + "%"
-                        color: theme.colPurple
+                        text: " " + Theme.volMax + ":" + volumeLevel + "%"
+                        color: Theme.colPurple
                         font.pixelSize: root.fontSize
                         font.family: root.fontFamily
                         font.bold: true

@@ -3,23 +3,17 @@ import Quickshell.Wayland
 import Quickshell.Io
 import QtQuick
 import QtQuick.Layouts
+import ".." 
 
 ShellRoot {
     id: root
 
-    Theme {
-        id: theme
-    }
-
-    // Font
     property string fontFamily: "JetBrainsMono Nerd Font"
 
-    // Wallpaper configuration
     property string wallpaperDirectory: "/home/auth/.repos/caelum/wallpapers/"
     property var wallpaperFiles: []
-    property int wallpaperCount: 0  // Helper to trigger UI updates
+    property int wallpaperCount: 0  
 
-    // Load wallpaper list on startup
     Process {
         id: wallpaperListProc
         command: ["sh", "-c", "find " + root.wallpaperDirectory + " -maxdepth 1 -type f \\( -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.png' \\) | sort"]
@@ -41,7 +35,6 @@ ShellRoot {
         onExited: (code, status) => {
             console.log("Process exited with code:", code)
             console.log("Found wallpapers:", wallpaperListProc.tempFiles.length)
-            // Assign all at once to trigger Repeater update
             root.wallpaperFiles = wallpaperListProc.tempFiles
             root.wallpaperCount = wallpaperListProc.tempFiles.length
         }
@@ -54,87 +47,22 @@ ShellRoot {
     FloatingWindow {
         id: wallpaperPicker
         visible: true
-
         title: "qswp"
-        width: 1000
-        height: 700
-        
         color: "transparent"
         screen: Quickshell.screens[0]
-        
-        // Center on screen
-        Component.onCompleted: {
-            if (screen) {
-                var screenGeometry = screen.geometry
-                x = (screenGeometry.width - width) / 2
-                y = (screenGeometry.height - height) / 2
-            }
-        }
 
         Rectangle {
             anchors.fill: parent
-            color: theme.colBg
+            color: Theme.colBg
             opacity: 0.98
-            radius: 12
+            radius: 5
             
             ColumnLayout {
                 anchors.fill: parent
                 anchors.margins: 20
                 spacing: 15
 
-                // Header
-                RowLayout {
-                    Layout.fillWidth: true
-                    spacing: 10
 
-                    Text {
-                        text: "󰸉 Select Wallpaper"
-                        color: theme.colCyan
-                        font.pixelSize: 24
-                        font.family: root.fontFamily
-                        font.bold: true
-                        Layout.fillWidth: true
-                    }
-
-                    Text {
-                        text: root.wallpaperCount + " wallpapers"
-                        color: theme.colMuted
-                        font.pixelSize: 14
-                        font.family: root.fontFamily
-                    }
-
-                    Rectangle {
-                        Layout.preferredWidth: 40
-                        Layout.preferredHeight: 40
-                        color: closeMouseArea.containsMouse ? theme.colCyan : "transparent"
-                        radius: 8
-                        border.color: theme.colCyan
-                        border.width: 2
-
-                        Text {
-                            text: "✕"
-                            color: closeMouseArea.containsMouse ? theme.colBg : theme.colCyan
-                            font.pixelSize: 20
-                            font.bold: true
-                            anchors.centerIn: parent
-                        }
-
-                        MouseArea {
-                            id: closeMouseArea
-                            anchors.fill: parent
-                            hoverEnabled: true
-                            onClicked: Qt.quit()
-                        }
-                    }
-                }
-
-                Rectangle {
-                    Layout.fillWidth: true
-                    Layout.preferredHeight: 2
-                    color: theme.colMuted
-                }
-
-                // Scrollable area with custom scrollbar
                 Item {
                     Layout.fillWidth: true
                     Layout.fillHeight: true
@@ -160,10 +88,9 @@ ShellRoot {
                                 Rectangle {
                                     Layout.preferredWidth: (wallpaperGrid.width - 30) / 3
                                     Layout.preferredHeight: 180
-                                    color: theme.colMuted
-                                    radius: 10
-                                    border.color: wallpaperMouseArea.containsMouse ? theme.colCyan : "transparent"
-                                    border.width: 3
+                                    color: Theme.colMuted
+                                    radius: 5
+                                    border.color: wallpaperMouseArea.containsMouse ? Theme.colCyan : "transparent"
 
                                     layer.enabled: true
                                     layer.effect: ShaderEffect {
@@ -173,7 +100,7 @@ ShellRoot {
                                     Rectangle {
                                         anchors.fill: parent
                                         anchors.margins: 4
-                                        radius: 8
+                                        radius: 5
                                         color: "black"
                                         clip: true
 
@@ -194,20 +121,19 @@ ShellRoot {
                                             }
                                         }
 
-                                        // Filename overlay
                                         Rectangle {
                                             anchors.left: parent.left
                                             anchors.right: parent.right
                                             anchors.bottom: parent.bottom
                                             height: 35
-                                            color: theme.colBg
+                                            color: Theme.colBg
                                             opacity: 0.9
 
                                             Text {
                                                 anchors.fill: parent
                                                 anchors.margins: 8
                                                 text: modelData.split('/').pop()
-                                                color: theme.colFg
+                                                color: Theme.colFg
                                                 font.pixelSize: 12
                                                 font.family: root.fontFamily
                                                 elide: Text.ElideMiddle
@@ -216,11 +142,10 @@ ShellRoot {
                                             }
                                         }
 
-                                        // Hover icon
                                         Text {
                                             visible: wallpaperMouseArea.containsMouse
                                             text: "✓"
-                                            color: theme.colCyan
+                                            color: Theme.colCyan
                                             font.pixelSize: 48
                                             font.bold: true
                                             anchors.centerIn: parent
@@ -234,14 +159,12 @@ ShellRoot {
                                         hoverEnabled: true
                                         
                                         onClicked: {
-                                            // Set wallpaper using swww
                                             var setWallpaperProc = Qt.createQmlObject('import Quickshell.Io; Process {}', root)
                                             setWallpaperProc.command = ["swww", "img", modelData]
                                             setWallpaperProc.running = true
                                             
                                             console.log("Setting wallpaper:", modelData)
                                             
-                                            // Close picker after short delay
                                             closeTimer.start()
                                         }
                                     }
@@ -250,13 +173,11 @@ ShellRoot {
                         }
                     }
 
-                    // Custom scrollbar
                     Rectangle {
                         anchors.right: parent.right
                         anchors.top: parent.top
                         anchors.bottom: parent.bottom
-                        width: 8
-                        color: theme.colMuted
+                        color: Theme.colMuted
                         opacity: 0.3
                         radius: 4
                         visible: flickable.contentHeight > flickable.height
@@ -266,7 +187,7 @@ ShellRoot {
                             width: parent.width
                             height: Math.max(30, (flickable.height / flickable.contentHeight) * parent.height)
                             y: (flickable.contentY / flickable.contentHeight) * parent.height
-                            color: theme.colCyan
+                            color: Theme.colCyan
                             radius: 4
                             opacity: scrollMouseArea.containsMouse || scrollMouseArea.pressed ? 0.8 : 0.5
 
@@ -298,19 +219,9 @@ ShellRoot {
                         }
                     }
                 }
-
-                // Footer
-                Text {
-                    text: "Click a wallpaper to apply • Press ESC or click ✕ to close"
-                    color: theme.colMuted
-                    font.pixelSize: 12
-                    font.family: root.fontFamily
-                    Layout.alignment: Qt.AlignHCenter
-                }
             }
         }
 
-        // ESC key handling via FocusScope
         FocusScope {
             anchors.fill: parent
             focus: true
@@ -323,7 +234,6 @@ ShellRoot {
         }
     }
 
-    // Timer to close after wallpaper selection
     Timer {
         id: closeTimer
         interval: 200
