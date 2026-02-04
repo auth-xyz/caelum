@@ -21,6 +21,7 @@ ShellRoot {
     property int volumeLevel: 0
     property string activeWindow: "Window"
     property bool bluetoothVisible: false
+    property bool spotifyVisible: false
 
     // Spotify properties
     property string spotifyTrack: "No track"
@@ -40,6 +41,13 @@ ShellRoot {
         id: bluetoothLoader
         active: bluetoothVisible
         source: "widgets/bluetooth.qml"
+    }
+
+    // Spotify
+    Loader {
+        id: spotifyLoader
+        active: spotifyVisible
+        source: "widgets/spotify.qml"
     }
 
     // CPU usage
@@ -391,7 +399,7 @@ ShellRoot {
                         Text {
                             id: clockText
                             text: Qt.formatDateTime(new Date(), "HH:mm  ddd, dd/MM")
-                            color: Theme.colFg
+                            color: Theme.colOrange
                             font.pixelSize: root.fontSize
                             font.family: root.fontFamily
                             font.weight: Font.Bold
@@ -465,6 +473,44 @@ ShellRoot {
                                         proc.running = true
                                     }
                                 }
+                            }
+                        }
+
+                        // Spotify widget toggle button
+                        Rectangle {
+                            Layout.preferredWidth: 28
+                            Layout.fillHeight: true
+                            color: spotifyWidgetMouseArea.containsMouse ? Theme.colGreen : "transparent"
+                            radius: 6
+                            border.width: spotifyVisible ? 1 : 0
+                            border.color: Qt.rgba(0.3, 1.0, 0.5, 0.5)
+                            
+                            Behavior on color {
+                                ColorAnimation { duration: 150 }
+                            }
+                            
+                            Behavior on border.width {
+                                NumberAnimation { duration: 200 }
+                            }
+
+                            Text {
+                                text: Theme.multimediaIcon
+                                color: spotifyWidgetMouseArea.containsMouse ? Theme.colBg : Theme.colGreen
+                                font.pixelSize: root.fontSize
+                                font.family: root.fontFamily
+                                font.weight: Font.DemiBold
+                                anchors.centerIn: parent
+                                
+                                Behavior on color {
+                                    ColorAnimation { duration: 150 }
+                                }
+                            }
+
+                            MouseArea {
+                                id: spotifyWidgetMouseArea
+                                anchors.fill: parent
+                                hoverEnabled: true
+                                onClicked: spotifyVisible = !spotifyVisible
                             }
                         }
                     }
