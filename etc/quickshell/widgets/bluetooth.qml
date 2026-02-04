@@ -32,7 +32,7 @@ ShellRoot {
 
         Rectangle {
             anchors.fill: parent
-            color: Theme.colBg
+            color: Colors.colBg
             opacity: 0.98
             radius: 12
             
@@ -62,7 +62,7 @@ ShellRoot {
                             // Connected devices section
                             Text {
                                 text: "Connected Devices"
-                                color: Theme.colCyan
+                                color: Colors.colCyan
                                 font.pixelSize: 18
                                 font.family: root.fontFamily
                                 font.bold: true
@@ -79,7 +79,7 @@ ShellRoot {
                                     Layout.preferredHeight: 80
                                     color: "transparent"
                                     radius: 5
-                                    border.color: Theme.colGreen
+                                    border.color: Colors.colGreen
                                     border.width: 1
 
                                     RowLayout {
@@ -98,7 +98,7 @@ ShellRoot {
                                                 if (modelData.icon === "computer" || modelData.icon === "computer-laptop") return ""
                                                 return ""
                                             }
-                                            color: Theme.colGreen
+                                            color: Colors.colGreen
                                             font.pixelSize: 32
                                             font.family: root.fontFamily
                                             Layout.preferredWidth: 40
@@ -116,7 +116,7 @@ ShellRoot {
 
                                                 Text {
                                                     text: modelData.name || modelData.address
-                                                    color: Theme.colFg
+                                                    color: Colors.colFg
                                                     font.pixelSize: 16
                                                     font.family: root.fontFamily
                                                     font.bold: true
@@ -138,9 +138,9 @@ ShellRoot {
                                                             return Theme.batteryCritical
                                                         }
                                                         color: {
-                                                            if (parent.batteryPercent >= 75) return Theme.colGreen
-                                                            if (parent.batteryPercent >= 25) return Theme.colYellow
-                                                            return Theme.colRed
+                                                            if (parent.batteryPercent >= 75) return Colors.colGreen
+                                                            if (parent.batteryPercent >= 25) return Colors.colYellow
+                                                            return Colors.colRed
                                                         }
                                                         font.pixelSize: 16
                                                         font.family: root.fontFamily
@@ -149,9 +149,9 @@ ShellRoot {
                                                     Text {
                                                         text: Math.round(parent.batteryPercent) + "%"
                                                         color: {
-                                                            if (parent.batteryPercent >= 75) return Theme.colGreen
-                                                            if (parent.batteryPercent >= 25) return Theme.colYellow
-                                                            return Theme.colRed
+                                                            if (parent.batteryPercent >= 75) return Colors.colGreen
+                                                            if (parent.batteryPercent >= 25) return Colors.colYellow
+                                                            return Colors.colRed
                                                         }
                                                         font.pixelSize: 12
                                                         font.family: root.fontFamily
@@ -162,7 +162,7 @@ ShellRoot {
 
                                             Text {
                                                 text: modelData.address + " • " + (modelData.paired ? "Paired" : "Not paired")
-                                                color: Theme.colMuted
+                                                color: Colors.colMuted
                                                 font.pixelSize: 12
                                                 font.family: root.fontFamily
                                             }
@@ -172,14 +172,14 @@ ShellRoot {
                                         Rectangle {
                                             Layout.preferredWidth: 100
                                             Layout.preferredHeight: 35
-                                            color: disconnectMouseArea.containsMouse ? Theme.colRed : "transparent"
+                                            color: disconnectMouseArea.containsMouse ? Colors.colRed : "transparent"
                                             radius: 6
-                                            border.color: Theme.colRed
+                                            border.color: Colors.colRed
                                             border.width: 1
 
                                             Text {
                                                 text: "Disconnect"
-                                                color: disconnectMouseArea.containsMouse ? Theme.colBg : Theme.colRed
+                                                color: disconnectMouseArea.containsMouse ? Colors.colBg : Colors.colRed
                                                 font.pixelSize: 12
                                                 font.family: root.fontFamily
                                                 font.bold: true
@@ -200,7 +200,7 @@ ShellRoot {
                             // Available devices section
                             Text {
                                 text: "Available Devices"
-                                color: Theme.colCyan
+                                color: Colors.colCyan
                                 font.pixelSize: 18
                                 font.family: root.fontFamily
                                 font.bold: true
@@ -215,10 +215,10 @@ ShellRoot {
                                 Rectangle {
                                     Layout.fillWidth: true
                                     Layout.preferredHeight: 80
-                                    color: deviceMouseArea.containsMouse ? Theme.colMuted : "transparent"
+                                    color: deviceMouseArea.containsMouse ? Colors.colMuted : "transparent"
                                     opacity: deviceMouseArea.containsMouse ? 0.5 : 0.3
                                     radius: 5
-                                    border.color: modelData.paired ? Theme.colCyan : Theme.colMuted
+                                    border.color: modelData.paired ? Colors.colCyan : Colors.colMuted
                                     border.width: 1
 
                                     Behavior on opacity {
@@ -241,7 +241,7 @@ ShellRoot {
                                                 if (modelData.icon === "computer" || modelData.icon === "computer-laptop") return ""
                                                 return ""
                                             }
-                                            color: Theme.colCyan
+                                            color: Colors.colCyan
                                             font.pixelSize: 32
                                             font.family: root.fontFamily
                                             Layout.preferredWidth: 35
@@ -254,7 +254,7 @@ ShellRoot {
 
                                             Text {
                                                 text: modelData.name || modelData.address
-                                                color: Theme.colFg
+                                                color: Colors.colFg
                                                 font.pixelSize: 16
                                                 font.family: root.fontFamily
                                                 font.bold: true
@@ -267,14 +267,14 @@ ShellRoot {
 
                                                 Text {
                                                     text: modelData.address
-                                                    color: Theme.colMuted
+                                                    color: Colors.colMuted
                                                     font.pixelSize: 12
                                                     font.family: root.fontFamily
                                                 }
 
                                                 Text {
                                                     text: modelData.paired ? "• Paired" : ""
-                                                    color: Theme.colCyan
+                                                    color: Colors.colCyan
                                                     font.pixelSize: 12
                                                     font.family: root.fontFamily
                                                     visible: modelData.paired
@@ -286,14 +286,14 @@ ShellRoot {
                                         Rectangle {
                                             Layout.preferredWidth: 80
                                             Layout.preferredHeight: 35
-                                            color: actionMouseArea.containsMouse ? Theme.colCyan : "transparent"
+                                            color: actionMouseArea.containsMouse ? Colors.colCyan : "transparent"
                                             radius: 6
-                                            border.color: Theme.colCyan
+                                            border.color: Colors.colCyan
                                             border.width: 1
 
                                             Text {
                                                 text: modelData.paired ? "Connect" : "Pair"
-                                                color: actionMouseArea.containsMouse ? Theme.colBg : Theme.colCyan
+                                                color: actionMouseArea.containsMouse ? Colors.colBg : Colors.colCyan
                                                 font.pixelSize: 12
                                                 font.family: root.fontFamily
                                                 font.bold: true
@@ -336,7 +336,7 @@ ShellRoot {
 
                                     Text {
                                         text: ""
-                                        color: Theme.colMuted
+                                        color: Colors.colMuted
                                         font.pixelSize: 64
                                         font.family: root.fontFamily
                                         Layout.alignment: Qt.AlignHCenter
@@ -346,7 +346,7 @@ ShellRoot {
                                         text: Bluetooth.enabled ? 
                                               "No devices found" :
                                               "Bluetooth is disabled"
-                                        color: Theme.colMuted
+                                        color: Colors.colMuted
                                         font.pixelSize: 18
                                         font.family: root.fontFamily
                                         Layout.alignment: Qt.AlignHCenter
@@ -356,7 +356,7 @@ ShellRoot {
                                         text: Bluetooth.enabled ?
                                               "Click the  icon to scan for devices" :
                                               "Click ON to enable Bluetooth"
-                                        color: Theme.colMuted
+                                        color: Colors.colMuted
                                         font.pixelSize: 14
                                         font.family: root.fontFamily
                                         font.italic: true
@@ -373,7 +373,7 @@ ShellRoot {
                         anchors.top: parent.top
                         anchors.bottom: parent.bottom
                         width: 8
-                        color: Theme.colMuted
+                        color: Colors.colMuted
                         opacity: 0.3
                         radius: 4
                         visible: flickable.contentHeight > flickable.height
@@ -383,7 +383,7 @@ ShellRoot {
                             width: parent.width
                             height: Math.max(30, (flickable.height / flickable.contentHeight) * parent.height)
                             y: (flickable.contentY / flickable.contentHeight) * parent.height
-                            color: Theme.colCyan
+                            color: Colors.colCyan
                             radius: 4
                             opacity: scrollMouseArea.containsMouse || scrollMouseArea.pressed ? 0.8 : 0.5
 

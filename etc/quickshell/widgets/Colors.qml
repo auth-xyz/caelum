@@ -1,0 +1,1 @@
+/home/auth/.config/quickshell/Colors.qml

@@ -44,7 +44,7 @@ ShellRoot {
 
         Rectangle {
             anchors.fill: parent
-            color: Theme.colBg
+            color: Colors.colBg
             opacity: 0.98
             radius: 12
             
@@ -57,7 +57,7 @@ ShellRoot {
                 Rectangle {
                     Layout.preferredWidth: 148
                     Layout.preferredHeight: 148
-                    color: Theme.colMuted
+                    color: Colors.colMuted
                     opacity: 0.15
                     radius: 8
 
@@ -78,7 +78,7 @@ ShellRoot {
                     // Fallback icon
                     Text {
                         text: ""
-                        color: Theme.colMuted
+                        color: Colors.colMuted
                         font.pixelSize: 64
                         font.family: root.fontFamily
                         anchors.centerIn: parent
@@ -99,7 +99,7 @@ ShellRoot {
 
                         Text {
                             text: currentTrack
-                            color: Theme.colFg
+                            color: Colors.colFg
                             font.pixelSize: 16
                             font.family: root.fontFamily
                             font.bold: true
@@ -109,7 +109,7 @@ ShellRoot {
 
                         Text {
                             text: currentArtist
-                            color: Theme.colMuted
+                            color: Colors.colMuted
                             font.pixelSize: 13
                             font.family: root.fontFamily
                             Layout.fillWidth: true
@@ -127,14 +127,14 @@ ShellRoot {
                         Rectangle {
                             Layout.fillWidth: true
                             Layout.preferredHeight: 4
-                            color: Theme.colMuted
+                            color: Colors.colMuted
                             opacity: 0.3
                             radius: 2
 
                             Rectangle {
                                 width: length > 0 ? parent.width * (position / length) : 0
                                 height: parent.height
-                                color: Theme.colGreen
+                                color: Colors.colGreen
                                 radius: 2
 
                                 Behavior on width {
@@ -148,7 +148,7 @@ ShellRoot {
 
                             Text {
                                 text: formatTime(position)
-                                color: Theme.colMuted
+                                color: Colors.colMuted
                                 font.pixelSize: 10
                                 font.family: root.fontFamily
                             }
@@ -157,7 +157,7 @@ ShellRoot {
 
                             Text {
                                 text: formatTime(length)
-                                color: Theme.colMuted
+                                color: Colors.colMuted
                                 font.pixelSize: 10
                                 font.family: root.fontFamily
                             }
@@ -176,7 +176,7 @@ ShellRoot {
 
                             Text {
                                 text: volume === 0 ? "󰝟" : volume < 50 ? "󰕿" : "󰕾"
-                                color: Theme.colPurple
+                                color: Colors.colPurple
                                 font.pixelSize: 16
                                 font.family: root.fontFamily
                             }
@@ -184,14 +184,14 @@ ShellRoot {
                             Rectangle {
                                 Layout.fillWidth: true
                                 Layout.preferredHeight: 6
-                                color: Theme.colMuted
+                                color: Colors.colMuted
                                 opacity: 0.3
                                 radius: 3
 
                                 Rectangle {
                                     width: parent.width * (volume / 100)
                                     height: parent.height
-                                    color: Theme.colPurple
+                                    color: Colors.colPurple
                                     radius: 3
 
                                     Behavior on width {
@@ -214,7 +214,7 @@ ShellRoot {
 
                             Text {
                                 text: volume + "%"
-                                color: Theme.colPurple
+                                color: Colors.colPurple
                                 font.pixelSize: 11
                                 font.family: root.fontFamily
                                 font.bold: true
@@ -230,14 +230,14 @@ ShellRoot {
                             Rectangle {
                                 Layout.preferredWidth: 32
                                 Layout.preferredHeight: 32
-                                color: prevMouseArea.containsMouse ? Theme.colMuted : "transparent"
+                                color: prevMouseArea.containsMouse ? Colors.colMuted : "transparent"
                                 radius: 16
-                                border.color: Theme.colMuted
+                                border.color: Colors.colMuted
                                 border.width: 1
 
                                 Text {
                                     text: "󰒮"
-                                    color: Theme.colFg
+                                    color: Colors.colFg
                                     font.pixelSize: 14
                                     font.family: root.fontFamily
                                     anchors.centerIn: parent
@@ -263,14 +263,14 @@ ShellRoot {
                             Rectangle {
                                 Layout.preferredWidth: 38
                                 Layout.preferredHeight: 38
-                                color: playMouseArea.containsMouse ? Theme.colGreen : "transparent"
+                                color: playMouseArea.containsMouse ? Colors.colGreen : "transparent"
                                 radius: 19
-                                border.color: Theme.colGreen
+                                border.color: Colors.colGreen
                                 border.width: 2
 
                                 Text {
                                     text: playbackStatus === "Playing" ? "󰏤" : "󰐊"
-                                    color: playMouseArea.containsMouse ? Theme.colBg : Theme.colGreen
+                                    color: playMouseArea.containsMouse ? Colors.colBg : Colors.colGreen
                                     font.pixelSize: 18
                                     font.family: root.fontFamily
                                     anchors.centerIn: parent
@@ -296,14 +296,14 @@ ShellRoot {
                             Rectangle {
                                 Layout.preferredWidth: 32
                                 Layout.preferredHeight: 32
-                                color: nextMouseArea.containsMouse ? Theme.colMuted : "transparent"
+                                color: nextMouseArea.containsMouse ? Colors.colMuted : "transparent"
                                 radius: 16
-                                border.color: Theme.colMuted
+                                border.color: Colors.colMuted
                                 border.width: 1
 
                                 Text {
                                     text: "󰒭"
-                                    color: Theme.colFg
+                                    color: Colors.colFg
                                     font.pixelSize: 14
                                     font.family: root.fontFamily
                                     anchors.centerIn: parent

@@ -53,7 +53,7 @@ ShellRoot {
 
         Rectangle {
             anchors.fill: parent
-            color: Theme.colBg
+            color: Colors.colBg
             opacity: 0.98
             radius: 5
             
@@ -88,9 +88,9 @@ ShellRoot {
                                 Rectangle {
                                     Layout.preferredWidth: (wallpaperGrid.width - 30) / 3
                                     Layout.preferredHeight: 180
-                                    color: Theme.colMuted
+                                    color: Colors.colMuted
                                     radius: 5
-                                    border.color: wallpaperMouseArea.containsMouse ? Theme.colCyan : "transparent"
+                                    border.color: wallpaperMouseArea.containsMouse ? Colors.colCyan : "transparent"
 
                                     layer.enabled: true
                                     layer.effect: ShaderEffect {
@@ -126,14 +126,14 @@ ShellRoot {
                                             anchors.right: parent.right
                                             anchors.bottom: parent.bottom
                                             height: 35
-                                            color: Theme.colBg
+                                            color: Colors.colBg
                                             opacity: 0.9
 
                                             Text {
                                                 anchors.fill: parent
                                                 anchors.margins: 8
                                                 text: modelData.split('/').pop()
-                                                color: Theme.colFg
+                                                color: Colors.colFg
                                                 font.pixelSize: 12
                                                 font.family: root.fontFamily
                                                 elide: Text.ElideMiddle
@@ -145,7 +145,7 @@ ShellRoot {
                                         Text {
                                             visible: wallpaperMouseArea.containsMouse
                                             text: "✓"
-                                            color: Theme.colCyan
+                                            color: Colors.colCyan
                                             font.pixelSize: 48
                                             font.bold: true
                                             anchors.centerIn: parent
@@ -177,7 +177,7 @@ ShellRoot {
                         anchors.right: parent.right
                         anchors.top: parent.top
                         anchors.bottom: parent.bottom
-                        color: Theme.colMuted
+                        color: Colors.colMuted
                         opacity: 0.3
                         radius: 4
                         visible: flickable.contentHeight > flickable.height
@@ -187,7 +187,7 @@ ShellRoot {
                             width: parent.width
                             height: Math.max(30, (flickable.height / flickable.contentHeight) * parent.height)
                             y: (flickable.contentY / flickable.contentHeight) * parent.height
-                            color: Theme.colCyan
+                            color: Colors.colCyan
                             radius: 4
                             opacity: scrollMouseArea.containsMouse || scrollMouseArea.pressed ? 0.8 : 0.5
 

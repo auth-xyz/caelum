@@ -20,6 +20,8 @@ ShellRoot {
     property int diskUsage: 0
     property int volumeLevel: 0
     property string activeWindow: "Window"
+    property string networkStatus: "Disconnected"
+    property string networkType: "none"
     property bool bluetoothVisible: false
     property bool spotifyVisible: false
 
@@ -144,6 +146,27 @@ ShellRoot {
         Component.onCompleted: running = true
     }
 
+    // Network status (WiFi/Ethernet)
+    Process {
+        id: networkProc
+        command: ["sh", "-c", "nmcli -t -f TYPE,STATE device | grep -E '^(wifi|ethernet):connected' | head -1"]
+        stdout: SplitParser {
+            onRead: data => {
+                if (!data || !data.trim()) {
+                    networkStatus = "Disconnected"
+                    networkType = "none"
+                    return
+                }
+                var parts = data.trim().split(':')
+                if (parts.length >= 2) {
+                    networkType = parts[0] // "wifi" or "ethernet"
+                    networkStatus = parts[1] // "connected"
+                }
+            }
+        }
+        Component.onCompleted: running = true
+    }
+
     // Spotify metadata
     Process {
         id: spotifyProc
@@ -172,6 +195,7 @@ ShellRoot {
             memProc.running = true
             diskProc.running = true
             volProc.running = true
+            networkProc.running = true
         }
     }
 
@@ -221,7 +245,7 @@ ShellRoot {
             Rectangle {
                 id: mainPanel
                 anchors.fill: parent
-                color: Theme.colBg
+                color: Colors.colBg
                 radius: 8
                 
                 // Subtle shadow effect
@@ -240,7 +264,7 @@ ShellRoot {
                         margins: 4
                     }
                     width: leftLayout.implicitWidth + 16
-                    color: Theme.colBg
+                    color: Colors.colBg
                     radius: 8
 
                     RowLayout {
@@ -268,11 +292,9 @@ ShellRoot {
                                     height: isActive ? 27 : 24
                                     y: isActive ? 0 : 1.5
                                     
-                                    // Calculate x position based on active workspace
                                     x: {
                                         var activeIndex = -1
                                         
-                                        // Find which workspace is active
                                         for (var i = 0; i < 5; i++) {
                                             if (Hyprland.focusedWorkspace?.id === (i + 1)) {
                                                 activeIndex = i
@@ -280,12 +302,10 @@ ShellRoot {
                                             }
                                         }
                                         
-                                        // If no active workspace, use normal positioning
                                         if (activeIndex === -1) {
                                             return index * (28 + 4)
                                         }
                                         
-                                        // Calculate position based on whether we're before, at, or after active
                                         var pos = 0
                                         for (var j = 0; j < index; j++) {
                                             if (j === activeIndex) {
@@ -298,7 +318,7 @@ ShellRoot {
                                         return pos
                                     }
                                     
-                                    color: isActive ? Theme.colBlue : (workspaceMouseArea.containsMouse ? Theme.colMuted : "transparent")
+                                    color: isActive ? Colors.colBlue : (workspaceMouseArea.containsMouse ? Colors.colMuted : "transparent")
                                     radius: 6
 
                                     Behavior on color {
@@ -328,7 +348,7 @@ ShellRoot {
                                             if (!workspaceRect.isActive && !workspaceRect.hasWindows) return Theme.windowInactive
                                             return ""
                                         }
-                                        color: workspaceRect.isActive ? Theme.colBg : (workspaceRect.hasWindows ? Theme.colFg : Theme.colMuted)
+                                        color: workspaceRect.isActive ? Colors.colBg : (workspaceRect.hasWindows ? Colors.colFg : Colors.colMuted)
                                         font.pixelSize: workspaceRect.isActive ? 13 : 10
                                         font.family: root.fontFamily
                                         font.weight: workspaceRect.isActive ? Font.Bold : Font.Normal
@@ -356,14 +376,14 @@ ShellRoot {
                         Rectangle {
                             Layout.preferredWidth: 1
                             Layout.preferredHeight: 19
-                            color: Theme.colMuted
+                            color: Colors.colMuted
                             opacity: 0.5
                         }
 
                         // Active Window Title
                         Text {
                             text: activeWindow
-                            color: Theme.colPurple
+                            color: Colors.colPurple
                             font.pixelSize: root.fontSize
                             font.family: root.fontFamily
                             font.weight: Font.DemiBold
@@ -386,7 +406,7 @@ ShellRoot {
                         margins: 4
                     }
                     width: centerLayout.implicitWidth + 16
-                    color: Theme.colBg
+                    color: Colors.colBg
                     radius: 8
 
                     RowLayout {
@@ -399,7 +419,7 @@ ShellRoot {
                         Text {
                             id: clockText
                             text: Qt.formatDateTime(new Date(), "HH:mm  ddd, dd/MM")
-                            color: Theme.colOrange
+                            color: Colors.colOrange
                             font.pixelSize: root.fontSize
                             font.family: root.fontFamily
                             font.weight: Font.Bold
@@ -415,7 +435,7 @@ ShellRoot {
                         Rectangle {
                             Layout.preferredWidth: 1
                             Layout.preferredHeight: 16
-                            color: Theme.colMuted
+                            color: Colors.colMuted
                             opacity: 0.5
                         }
 
@@ -424,7 +444,7 @@ ShellRoot {
                             Layout.preferredHeight: 24
                             Layout.preferredWidth: spotifyLayout.implicitWidth + 12
                             radius: 4
-                            color: spotifyStatus === "Playing" ? Theme.colGreen : Theme.colBg
+                            color: spotifyStatus === "Playing" ? Colors.colGreen : Colors.colBg
                             
                             Behavior on color {
                                 ColorAnimation { duration: 300 }
@@ -437,7 +457,7 @@ ShellRoot {
 
                                 Text {
                                     text: (spotifyArtist ? spotifyArtist + " - " : "") + spotifyTrack
-                                    color: spotifyStatus === "Playing" ? Theme.colBg : Theme.colMuted
+                                    color: spotifyStatus === "Playing" ? Colors.colBg : Colors.colMuted
                                     font.pixelSize: root.fontSize
                                     font.family: root.fontFamily
                                     font.weight: spotifyStatus === "Playing" ? Font.Bold : Font.DemiBold
@@ -480,7 +500,7 @@ ShellRoot {
                         Rectangle {
                             Layout.preferredWidth: 28
                             Layout.fillHeight: true
-                            color: spotifyWidgetMouseArea.containsMouse ? Theme.colGreen : "transparent"
+                            color: spotifyWidgetMouseArea.containsMouse ? Colors.colGreen : "transparent"
                             radius: 6
                             border.width: spotifyVisible ? 1 : 0
                             border.color: Qt.rgba(0.3, 1.0, 0.5, 0.5)
@@ -495,7 +515,7 @@ ShellRoot {
 
                             Text {
                                 text: Theme.multimediaIcon
-                                color: spotifyWidgetMouseArea.containsMouse ? Theme.colBg : Theme.colGreen
+                                color: spotifyWidgetMouseArea.containsMouse ? Colors.colBg : Colors.colGreen
                                 font.pixelSize: root.fontSize
                                 font.family: root.fontFamily
                                 font.weight: Font.DemiBold
@@ -526,7 +546,7 @@ ShellRoot {
                         margins: 4
                     }
                     width: rightLayout.implicitWidth + 16
-                    color: Theme.colBg
+                    color: Colors.colBg
                     radius: 8
 
                     RowLayout {
@@ -563,7 +583,7 @@ ShellRoot {
 
                                 Text {
                                     text: Theme.cpuIcon + " " + cpuUsage + "%"
-                                    color: Theme.colYellow
+                                    color: Colors.colYellow
                                     font.pixelSize: root.fontSize
                                     font.family: root.fontFamily
                                     font.weight: Font.DemiBold
@@ -572,7 +592,7 @@ ShellRoot {
 
                                 Text {
                                     text: Theme.memIcon + " " + memUsage + "%"
-                                    color: Theme.colCyan
+                                    color: Colors.colCyan
                                     font.pixelSize: root.fontSize
                                     font.family: root.fontFamily
                                     font.weight: Font.DemiBold
@@ -586,7 +606,7 @@ ShellRoot {
 
                                 Text {
                                     text: Theme.diskIcon + " " + diskUsage + "%"
-                                    color: Theme.colOrange
+                                    color: Colors.colOrange
                                     font.pixelSize: root.fontSize
                                     font.family: root.fontFamily
                                     font.weight: Font.DemiBold
@@ -600,7 +620,7 @@ ShellRoot {
 
                                 Text {
                                     text: Theme.volMax + " " + volumeLevel + "%"
-                                    color: Theme.colPurple
+                                    color: Colors.colPurple
                                     font.pixelSize: root.fontSize
                                     font.family: root.fontFamily
                                     font.weight: Font.DemiBold
@@ -609,6 +629,24 @@ ShellRoot {
                                     
                                     Behavior on opacity {
                                         NumberAnimation { duration: 200 }
+                                    }
+                                }
+
+                                Text {
+                                    text: (networkType === "wifi" ? "󰖩" : networkType === "ethernet" ? "󰈀" : "󰖪") + " " + (networkStatus === "connected" ? "On" : "Off")
+                                    color: networkStatus === "connected" ? Colors.colGreen : Colors.colRed
+                                    font.pixelSize: root.fontSize
+                                    font.family: root.fontFamily
+                                    font.weight: Font.DemiBold
+                                    visible: statsExpanded
+                                    opacity: statsExpanded ? 1 : 0
+                                    
+                                    Behavior on opacity {
+                                        NumberAnimation { duration: 200 }
+                                    }
+                                    
+                                    Behavior on color {
+                                        ColorAnimation { duration: 200 }
                                     }
                                 }
                             }
@@ -624,7 +662,7 @@ ShellRoot {
                         Rectangle {
                             Layout.preferredWidth: 1
                             Layout.preferredHeight: 16
-                            color: Theme.colMuted
+                            color: Colors.colMuted
                             opacity: 0.5
                         }
 
@@ -632,7 +670,7 @@ ShellRoot {
                         Rectangle {
                             Layout.fillHeight: true
                             Layout.preferredWidth: btLayout.implicitWidth + 12
-                            color: btMouseArea.containsMouse ? Theme.colMuted : "transparent"
+                            color: btMouseArea.containsMouse ? Colors.colMuted : "transparent"
                             radius: 6
                             border.width: root.connectedCount > 0 ? 1 : 0
                             border.color: Qt.rgba(0.2, 0.6, 1.0, 0.5)
@@ -652,7 +690,7 @@ ShellRoot {
 
                                 Text {
                                     text: Theme.btGui
-                                    color: Theme.colBlue
+                                    color: Colors.colBlue
                                     font.pixelSize: root.fontSize
                                     font.family: root.fontFamily
                                     font.weight: Font.DemiBold
@@ -660,7 +698,7 @@ ShellRoot {
                                 
                                 Text {
                                     text: root.connectedCount > 0 ? root.connectedCount : ""
-                                    color: Theme.colBlue
+                                    color: Colors.colBlue
                                     font.pixelSize: root.fontSize - 2
                                     font.family: root.fontFamily
                                     font.weight: Font.DemiBold
@@ -679,7 +717,7 @@ ShellRoot {
                         Rectangle {
                             Layout.preferredWidth: 1
                             Layout.preferredHeight: 16
-                            color: Theme.colMuted
+                            color: Colors.colMuted
                             opacity: 0.5
                         }
 
@@ -687,7 +725,7 @@ ShellRoot {
                         Rectangle {
                             Layout.preferredWidth: 28
                             Layout.fillHeight: true
-                            color: powerMouseArea.containsMouse ? Theme.colRed : "transparent"
+                            color: powerMouseArea.containsMouse ? Colors.colRed : "transparent"
                             radius: 6
                             
                             Behavior on color {
@@ -696,7 +734,7 @@ ShellRoot {
 
                             Text {
                                 text: "⏻"
-                                color: powerMouseArea.containsMouse ? Theme.colBg : Theme.colFg
+                                color: powerMouseArea.containsMouse ? Colors.colBg : Colors.colFg
                                 font.pixelSize: root.fontSize
                                 font.family: root.fontFamily
                                 anchors.centerIn: parent
