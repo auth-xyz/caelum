@@ -292,9 +292,11 @@ ShellRoot {
                                     height: isActive ? 27 : 24
                                     y: isActive ? 0 : 1.5
                                     
+                                    // Calculate x position based on active workspace
                                     x: {
                                         var activeIndex = -1
                                         
+                                        // Find which workspace is active
                                         for (var i = 0; i < 5; i++) {
                                             if (Hyprland.focusedWorkspace?.id === (i + 1)) {
                                                 activeIndex = i
@@ -302,10 +304,12 @@ ShellRoot {
                                             }
                                         }
                                         
+                                        // If no active workspace, use normal positioning
                                         if (activeIndex === -1) {
                                             return index * (28 + 4)
                                         }
                                         
+                                        // Calculate position based on whether we're before, at, or after active
                                         var pos = 0
                                         for (var j = 0; j < index; j++) {
                                             if (j === activeIndex) {
@@ -515,7 +519,7 @@ ShellRoot {
 
                             Text {
                                 text: Theme.multimediaIcon
-                                color: spotifyWidgetMouseArea.containsMouse ? Colors.colBg : Colors.colGreen
+                                color: spotifyWidgetMouseArea.containsMouse ? Colors.colBg : (spotifyStatus === "Playing" ? Colors.colGreen : Colors.colMuted)
                                 font.pixelSize: root.fontSize
                                 font.family: root.fontFamily
                                 font.weight: Font.DemiBold
