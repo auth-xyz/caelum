@@ -57,8 +57,7 @@ ShellRoot {
                 Rectangle {
                     Layout.preferredWidth: 148
                     Layout.preferredHeight: 148
-                    color: Colors.colMuted
-                    opacity: 0.15
+                    color: Qt.rgba(Colors.colMuted.r, Colors.colMuted.g, Colors.colMuted.b, 0.15)
                     radius: 8
 
                     Image {
