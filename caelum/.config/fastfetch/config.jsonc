@@ -29,6 +29,12 @@
             "keyColor": "33"
         },
         {
+            "type": "command",
+            "key": " ",
+            "keyColor": "33",
+            "text": "glxinfo | grep 'OpenGL version' | sed -n 's/.*Mesa \\([0-9.-]*[a-z]*\\).*/Mesa \\1/p'"
+        },
+        {
             "type": "packages",
             "format": "{} (pacman)",
             "key": " ",

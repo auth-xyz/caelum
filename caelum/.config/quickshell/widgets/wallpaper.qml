@@ -10,7 +10,7 @@ ShellRoot {
 
     property string fontFamily: "JetBrainsMono Nerd Font"
 
-    property string wallpaperDirectory: "/home/auth/.repos/caelum/wallpapers/"
+    property string wallpaperDirectory: "/home/auth/wallpapers/"
     property var wallpaperFiles: []
     property int wallpaperCount: 0  
 

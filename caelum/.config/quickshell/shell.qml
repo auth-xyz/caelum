@@ -225,6 +225,18 @@ ShellRoot {
         PanelWindow {
             property var modelData
             screen: modelData
+            WlrLayershell.layer: WlrLayer.Bottom
+
+            property bool isHDMI: modelData.name === "HDMI-A-1"
+            property bool isDP:   modelData.name === "DP-1"
+
+            property int wsOffset: isDP ? 5 : 0
+            property int localActiveWsId: {
+                var id = Hyprland.focusedWorkspace?.id ?? -1
+                var lo = wsOffset + 1      // 1 or 6
+                var hi = wsOffset + 5      // 5 or 10
+                return (id >= lo && id <= hi) ? id : -1
+            }
 
             anchors {
                 top: true
@@ -283,9 +295,11 @@ ShellRoot {
 
                                 Rectangle {
                                     id: workspaceRect
-                                    
-                                    property var workspace: Hyprland.workspaces.values.find(ws => ws.id === index + 1) ?? null
-                                    property bool isActive: Hyprland.focusedWorkspace?.id === (index + 1)
+
+                                    // wsOffset is 0 for HDMI-A-1 (ws 1-5), 5 for DP-1 (ws 6-10)
+                                    property int wsId: index + 1 + wsOffset
+                                    property var workspace: Hyprland.workspaces.values.find(ws => ws.id === wsId) ?? null
+                                    property bool isActive: localActiveWsId === wsId
                                     property bool hasWindows: workspace !== null
                                     
                                     width: isActive ? 56 : 28
@@ -296,15 +310,15 @@ ShellRoot {
                                     x: {
                                         var activeIndex = -1
                                         
-                                        // Find which workspace is active
+                                        // Find which workspace (in this monitor's range) is active
                                         for (var i = 0; i < 5; i++) {
-                                            if (Hyprland.focusedWorkspace?.id === (i + 1)) {
+                                            if (localActiveWsId === (i + 1 + wsOffset)) {
                                                 activeIndex = i
                                                 break
                                             }
                                         }
                                         
-                                        // If no active workspace, use normal positioning
+                                        // If no active workspace in range, use normal positioning
                                         if (activeIndex === -1) {
                                             return index * (28 + 4)
                                         }
@@ -371,7 +385,7 @@ ShellRoot {
                                         id: workspaceMouseArea
                                         anchors.fill: parent
                                         hoverEnabled: true
-                                        onClicked: Hyprland.dispatch("workspace " + (index + 1))
+                                        onClicked: Hyprland.dispatch("workspace " + wsId)
                                     }
                                 }
                             }
@@ -400,7 +414,7 @@ ShellRoot {
                     }
                 }
 
-                // CENTER MODULE - ABSOLUTELY CENTERED
+                // CENTER MODULE - ABSOLUTELY CENTERED (HDMI-A-1 only)
                 Rectangle {
                     id: centerModule
                     anchors {
@@ -412,6 +426,7 @@ ShellRoot {
                     width: centerLayout.implicitWidth + 16
                     color: Colors.colBg
                     radius: 8
+                    visible: isHDMI
 
                     RowLayout {
                         id: centerLayout
@@ -443,12 +458,13 @@ ShellRoot {
                             opacity: 0.5
                         }
 
-                        // Spotify widget
+                        // Spotify widget (HDMI-A-1 only)
                         Rectangle {
                             Layout.preferredHeight: 24
                             Layout.preferredWidth: spotifyLayout.implicitWidth + 12
                             radius: 4
                             color: spotifyStatus === "Playing" ? Colors.colGreen : Colors.colBg
+                            visible: isHDMI
                             
                             Behavior on color {
                                 ColorAnimation { duration: 300 }
@@ -500,7 +516,7 @@ ShellRoot {
                             }
                         }
 
-                        // Spotify widget toggle button
+                        // Spotify widget toggle button (HDMI-A-1 only)
                         Rectangle {
                             Layout.preferredWidth: 28
                             Layout.fillHeight: true
@@ -508,6 +524,7 @@ ShellRoot {
                             radius: 6
                             border.width: spotifyVisible ? 1 : 0
                             border.color: Qt.rgba(0.3, 1.0, 0.5, 0.5)
+                            visible: isHDMI
                             
                             Behavior on color {
                                 ColorAnimation { duration: 150 }
@@ -559,7 +576,7 @@ ShellRoot {
                         anchors.margins: 4
                         spacing: 5
 
-                        // System stats (expandable)
+                        // System stats (expandable, HDMI-A-1 only)
                         Rectangle {
                             Layout.fillHeight: true
                             Layout.preferredWidth: statsLayout.implicitWidth + 12
@@ -567,6 +584,7 @@ ShellRoot {
                             radius: 6
                             border.width: statsExpanded ? 1 : 0
                             border.color: Qt.rgba(0.3, 0.5, 1.0, 0.3)
+                            visible: isHDMI
                             
                             Behavior on color {
                                 ColorAnimation { duration: 150 }
@@ -668,6 +686,7 @@ ShellRoot {
                             Layout.preferredHeight: 16
                             color: Colors.colMuted
                             opacity: 0.5
+                            visible: isHDMI
                         }
 
                         // Bluetooth button
