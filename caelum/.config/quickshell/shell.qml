@@ -24,6 +24,8 @@ ShellRoot {
     property string networkType: "none"
     property bool bluetoothVisible: false
     property bool spotifyVisible: false
+    property bool powerVisible: false
+    property string powerScreenName: ""
 
     // Spotify properties
     property string spotifyTrack: "No track"
@@ -38,6 +40,34 @@ ShellRoot {
     // Stats expansion state
     property bool statsExpanded: false
 
+    function launchCommand(command) {
+        var proc = Qt.createQmlObject('import Quickshell.Io; Process {}', root)
+        proc.command = command
+        proc.running = true
+    }
+
+    function runPowerAction(action) {
+        powerVisible = false
+
+        switch (action) {
+        case "lock":
+            launchCommand(["hyprlock"])
+            break
+        case "logout":
+            launchCommand(["hyprctl", "dispatch", "exit"])
+            break
+        case "suspend":
+            launchCommand(["systemctl", "suspend"])
+            break
+        case "reboot":
+            launchCommand(["systemctl", "reboot"])
+            break
+        case "poweroff":
+            launchCommand(["systemctl", "poweroff"])
+            break
+        }
+    }
+
     // Bluetooth 
     Loader {
         id: bluetoothLoader
@@ -50,6 +80,37 @@ ShellRoot {
         id: spotifyLoader
         active: spotifyVisible
         source: "widgets/spotify.qml"
+    }
+
+    // Power
+    Loader {
+        id: powerLoader
+        active: powerVisible
+        source: "widgets/power.qml"
+
+        onLoaded: {
+            if (item) {
+                item.screenName = root.powerScreenName
+            }
+        }
+    }
+
+    onPowerScreenNameChanged: {
+        if (powerLoader.item) {
+            powerLoader.item.screenName = powerScreenName
+        }
+    }
+
+    Connections {
+        target: powerLoader.item
+
+        function onCloseRequested() {
+            root.powerVisible = false
+        }
+
+        function onActionRequested(action) {
+            root.runPowerAction(action)
+        }
     }
 
     // CPU usage
@@ -228,7 +289,7 @@ ShellRoot {
             WlrLayershell.layer: WlrLayer.Bottom
 
             property bool isHDMI: modelData.name === "HDMI-A-1"
-            property bool isDP:   modelData.name === "DP-1"
+            property bool isDP:   modelData.name === "DP-2"
 
             property int wsOffset: isDP ? 5 : 0
             property int localActiveWsId: {
@@ -750,9 +811,15 @@ ShellRoot {
                             Layout.fillHeight: true
                             color: powerMouseArea.containsMouse ? Colors.colRed : "transparent"
                             radius: 6
+                            border.width: root.powerVisible && root.powerScreenName === modelData.name ? 1 : 0
+                            border.color: Qt.rgba(Colors.colRed.r, Colors.colRed.g, Colors.colRed.b, 0.45)
                             
                             Behavior on color {
                                 ColorAnimation { duration: 150 }
+                            }
+
+                            Behavior on border.width {
+                                NumberAnimation { duration: 200 }
                             }
 
                             Text {
@@ -771,7 +838,14 @@ ShellRoot {
                                 id: powerMouseArea
                                 anchors.fill: parent
                                 hoverEnabled: true
-                                // Add power menu action here
+                                onClicked: {
+                                    if (root.powerVisible && root.powerScreenName === modelData.name) {
+                                        root.powerVisible = false
+                                    } else {
+                                        root.powerScreenName = modelData.name
+                                        root.powerVisible = true
+                                    }
+                                }
                             }
                         }
                     }
