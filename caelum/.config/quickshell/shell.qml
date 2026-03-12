@@ -5,6 +5,7 @@ import Quickshell.Hyprland
 import Quickshell.Bluetooth
 import QtQuick
 import QtQuick.Layouts
+import Qt5Compat.GraphicalEffects
 
 ShellRoot {
     id: root
@@ -26,11 +27,15 @@ ShellRoot {
     property bool spotifyVisible: false
     property bool powerVisible: false
     property string powerScreenName: ""
+    property bool statusDetailsVisible: false
+    property string statusDetailsScreenName: ""
+    property real statusDetailsAnchorX: 8
 
     // Spotify properties
     property string spotifyTrack: "No track"
     property string spotifyArtist: ""
     property string spotifyStatus: "Paused"
+    property string spotifyCoverArt: ""
 
     // CPU tracking
     property var lastCpuIdle: 0
@@ -95,9 +100,35 @@ ShellRoot {
         }
     }
 
+    // Status details
+    Loader {
+        id: statusDetailsLoader
+        active: statusDetailsVisible
+        source: "widgets/status-details.qml"
+
+        onLoaded: {
+            if (item) {
+                item.screenName = root.statusDetailsScreenName
+                item.anchorX = root.statusDetailsAnchorX
+            }
+        }
+    }
+
     onPowerScreenNameChanged: {
         if (powerLoader.item) {
             powerLoader.item.screenName = powerScreenName
+        }
+    }
+
+    onStatusDetailsScreenNameChanged: {
+        if (statusDetailsLoader.item) {
+            statusDetailsLoader.item.screenName = statusDetailsScreenName
+        }
+    }
+
+    onStatusDetailsAnchorXChanged: {
+        if (statusDetailsLoader.item) {
+            statusDetailsLoader.item.anchorX = statusDetailsAnchorX
         }
     }
 
@@ -110,6 +141,14 @@ ShellRoot {
 
         function onActionRequested(action) {
             root.runPowerAction(action)
+        }
+    }
+
+    Connections {
+        target: statusDetailsLoader.item
+
+        function onCloseRequested() {
+            root.statusDetailsVisible = false
         }
     }
 
@@ -231,15 +270,16 @@ ShellRoot {
     // Spotify metadata
     Process {
         id: spotifyProc
-        command: ["sh", "-c", "playerctl -p spotify metadata --format '{{artist}}|{{title}}|{{status}}' 2>/dev/null || echo '||Paused'"]
+        command: ["sh", "-c", "playerctl -p spotify metadata --format '{{artist}}|{{title}}|{{status}}|{{mpris:artUrl}}' 2>/dev/null || echo '||Paused|'"]
         stdout: SplitParser {
             onRead: data => {
                 if (!data) return
                 var parts = data.trim().split('|')
-                if (parts.length >= 3) {
+                if (parts.length >= 4) {
                     spotifyArtist = parts[0] || ""
                     spotifyTrack = parts[1] || "No track"
                     spotifyStatus = parts[2] || "Paused"
+                    spotifyCoverArt = parts[3] || ""
                 }
             }
         }
@@ -521,14 +561,45 @@ ShellRoot {
 
                         // Spotify widget (HDMI-A-1 only)
                         Rectangle {
+                            id: spotifyBarWidget
                             Layout.preferredHeight: 24
                             Layout.preferredWidth: spotifyLayout.implicitWidth + 12
                             radius: 4
-                            color: spotifyStatus === "Playing" ? Colors.colGreen : Colors.colBg
+                            color: spotifyBarBackground.visible ? Colors.colBg : (spotifyStatus === "Playing" ? Colors.colGreen : Colors.colBg)
+                            clip: true
                             visible: isHDMI
-                            
+
                             Behavior on color {
                                 ColorAnimation { duration: 300 }
+                            }
+
+                            Image {
+                                id: spotifyArtSource
+                                anchors.fill: parent
+                                source: spotifyCoverArt
+                                fillMode: Image.PreserveAspectCrop
+                                asynchronous: true
+                                cache: false
+                                visible: false
+                            }
+
+                            FastBlur {
+                                id: spotifyBarBackground
+                                anchors.fill: parent
+                                source: spotifyArtSource
+                                radius: 40
+                                transparentBorder: true
+                                visible: spotifyStatus === "Playing" && spotifyCoverArt !== ""
+                            }
+
+                            Rectangle {
+                                anchors.fill: parent
+                                color: Colors.colBg
+                                opacity: spotifyBarBackground.visible ? 0.38 : 0
+
+                                Behavior on opacity {
+                                    NumberAnimation { duration: 300 }
+                                }
                             }
 
                             RowLayout {
@@ -538,7 +609,7 @@ ShellRoot {
 
                                 Text {
                                     text: (spotifyArtist ? spotifyArtist + " - " : "") + spotifyTrack
-                                    color: spotifyStatus === "Playing" ? Colors.colBg : Colors.colMuted
+                                    color: spotifyBarBackground.visible ? Colors.colFg : (spotifyStatus === "Playing" ? Colors.colBg : Colors.colMuted)
                                     font.pixelSize: root.fontSize
                                     font.family: root.fontFamily
                                     font.weight: spotifyStatus === "Playing" ? Font.Bold : Font.DemiBold
@@ -579,13 +650,15 @@ ShellRoot {
 
                         // Spotify widget toggle button (HDMI-A-1 only)
                         Rectangle {
+                            id: spotifyToggleButton
                             Layout.preferredWidth: 28
                             Layout.fillHeight: true
-                            color: spotifyWidgetMouseArea.containsMouse ? Colors.colGreen : "transparent"
+                            color: spotifyToggleBackground.visible ? Colors.colBg : (spotifyWidgetMouseArea.containsMouse ? Colors.colGreen : "transparent")
                             radius: 6
                             border.width: spotifyVisible ? 1 : 0
                             border.color: Qt.rgba(0.3, 1.0, 0.5, 0.5)
                             visible: isHDMI
+                            clip: true
                             
                             Behavior on color {
                                 ColorAnimation { duration: 150 }
@@ -595,9 +668,38 @@ ShellRoot {
                                 NumberAnimation { duration: 200 }
                             }
 
+                            Image {
+                                id: spotifyToggleArtSource
+                                anchors.fill: parent
+                                source: spotifyCoverArt
+                                fillMode: Image.PreserveAspectCrop
+                                asynchronous: true
+                                cache: false
+                                visible: false
+                            }
+
+                            FastBlur {
+                                id: spotifyToggleBackground
+                                anchors.fill: parent
+                                source: spotifyToggleArtSource
+                                radius: 32
+                                transparentBorder: true
+                                visible: spotifyStatus === "Playing" && spotifyCoverArt !== ""
+                            }
+
+                            Rectangle {
+                                anchors.fill: parent
+                                color: Colors.colBg
+                                opacity: spotifyToggleBackground.visible ? (spotifyWidgetMouseArea.containsMouse ? 0.2 : 0.38) : 0
+
+                                Behavior on opacity {
+                                    NumberAnimation { duration: 150 }
+                                }
+                            }
+
                             Text {
                                 text: Theme.multimediaIcon
-                                color: spotifyWidgetMouseArea.containsMouse ? Colors.colBg : (spotifyStatus === "Playing" ? Colors.colGreen : Colors.colMuted)
+                                color: spotifyToggleBackground.visible ? Colors.colFg : (spotifyWidgetMouseArea.containsMouse ? Colors.colBg : (spotifyStatus === "Playing" ? Colors.colGreen : Colors.colMuted))
                                 font.pixelSize: root.fontSize
                                 font.family: root.fontFamily
                                 font.weight: Font.DemiBold
@@ -639,6 +741,7 @@ ShellRoot {
 
                         // System stats (expandable, HDMI-A-1 only)
                         Rectangle {
+                            id: statsPanel
                             Layout.fillHeight: true
                             Layout.preferredWidth: statsLayout.implicitWidth + 12
                             color: statsMouseArea.containsMouse ? Qt.rgba(0.2, 0.4, 0.8, 0.15) : "transparent"
@@ -738,7 +841,21 @@ ShellRoot {
                                 id: statsMouseArea
                                 anchors.fill: parent
                                 hoverEnabled: true
-                                onClicked: statsExpanded = !statsExpanded
+                                acceptedButtons: Qt.LeftButton | Qt.MiddleButton
+                                onClicked: mouse => {
+                                    if (mouse.button === Qt.MiddleButton) {
+                                        root.statusDetailsAnchorX = rightModule.x + statsPanel.x
+
+                                        if (root.statusDetailsVisible && root.statusDetailsScreenName === modelData.name) {
+                                            root.statusDetailsVisible = false
+                                        } else {
+                                            root.statusDetailsScreenName = modelData.name
+                                            root.statusDetailsVisible = true
+                                        }
+                                    } else if (mouse.button === Qt.LeftButton) {
+                                        statsExpanded = !statsExpanded
+                                    }
+                                }
                             }
                         }
 
