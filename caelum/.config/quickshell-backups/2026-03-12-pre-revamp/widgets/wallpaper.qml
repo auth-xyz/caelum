@@ -160,7 +160,7 @@ ShellRoot {
                                         
                                         onClicked: {
                                             var setWallpaperProc = Qt.createQmlObject('import Quickshell.Io; Process {}', root)
-                                            setWallpaperProc.command = ["awww", "img", modelData]
+                                            setWallpaperProc.command = ["swww", "img", modelData]
                                             setWallpaperProc.running = true
                                             
                                             console.log("Setting wallpaper:", modelData)

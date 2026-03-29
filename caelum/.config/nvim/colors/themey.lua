@@ -11,27 +11,27 @@ vim.g.colors_name = 'themey'
 
 -- Define color palette
 local colors = {
-  background = '#13151c',
-  foreground = '#a8b0c8',
-  cursor = '#e0b87d',
+  background = '#070b12',
+  foreground = '#aab4cc',
+  cursor = '#e2bc82',
 
-  black = '#1a1d28',
-  red = '#d4825c',
-  green = '#5a7a6f',
-  yellow = '#c89b5f',
-  blue = '#4d6a8a',
-  magenta = '#7a6b8e',
-  cyan = '#5d8a92',
-  white = '#9ca3b8',
+  black = '#0c111a',
+  red = '#c96b5a',
+  green = '#4f6f6a',
+  yellow = '#c9a46a',
+  blue = '#3f5f87',
+  magenta = '#6c5f82',
+  cyan = '#4f7c88',
+  white = '#8e9ab3',
 
-  bright_black = '#3a4150',
-  bright_red = '#e8a074',
-  bright_green = '#729184',
-  bright_yellow = '#e0b87d',
-  bright_blue = '#6d8eb0',
-  bright_magenta = '#9b88ab',
-  bright_cyan = '#7aa8b5',
-  bright_white = '#c5cce0',
+  bright_black = '#1e2633',
+  bright_red = '#e08974',
+  bright_green = '#6a8a84',
+  bright_yellow = '#e2bc82',
+  bright_blue = '#5f7fa8',
+  bright_magenta = '#8a78a0',
+  bright_cyan = '#6a9ca8',
+  bright_white = '#b7c2d9',
 }
 
 -- Helper function to set highlights
