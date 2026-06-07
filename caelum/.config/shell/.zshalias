@@ -14,7 +14,7 @@ export CONFIG="$HOME/.config"
 
 # System aliases
 
-alias remove="sudo pacman -R"
+alias remove="doas pacman -R"
 
 alias cd='z'
 alias ls="eza --icons --all"
@@ -27,9 +27,9 @@ alias syncv="rclone sync $HOME/Vault gdrive:Vault/"
 
 # VPN aliases
 
-alias vpnc="sudo protonvpn c"
-alias vpnd="sudo protonvpn d"
-alias vpns="sudo protonvpn status"
+alias vpnc="doas protonvpn c"
+alias vpnd="doas protonvpn d"
+alias vpns="doas protonvpn status"
 
 # Script aliases
 
@@ -93,7 +93,7 @@ inst() {
   done
 
   if [ "${#repo[@]}" -gt 0 ]; then
-    sudo pacman -S "${repo[@]}" --noconfirm
+    doas pacman -S "${repo[@]}" --noconfirm
   fi
 
   if [ "${#aur[@]}" -gt 0 ]; then
@@ -103,7 +103,7 @@ inst() {
 
 update() {
     echo "Updating all packages..."
-    sudo pacman -Syu --noconfirm
+    doas pacman -Syu --noconfirm
     yay -Syu --noconfirm
 }
 

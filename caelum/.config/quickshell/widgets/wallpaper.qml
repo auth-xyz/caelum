@@ -12,7 +12,48 @@ ShellRoot {
 
     property string wallpaperDirectory: "/home/auth/wallpapers/"
     property var wallpaperFiles: []
-    property int wallpaperCount: 0  
+    property int wallpaperCount: 0
+
+    // Display mode: 0 = All Displays, 1 = Individual (left=DP, right=HDMI)
+    property int displayMode: 0
+    property string hdmiOutput: "HDMI-A-1"
+    property string dpOutput: "DP-2"
+
+    // Track which displays have been set in individual mode
+    property bool hdmiSet: false
+    property bool dpSet: false
+
+    function setWallpaper(path, output) {
+        if (output === "") {
+            setAllProc.command = ["awww", "img", path]
+            setAllProc.running = true
+            console.log("Setting wallpaper:", path, "(all displays)")
+            closeTimer.start()
+        } else if (output === root.hdmiOutput) {
+            setHdmiProc.command = ["awww", "img", "-o", output, path]
+            setHdmiProc.running = true
+            root.hdmiSet = true
+            console.log("Setting wallpaper:", path, "on", output)
+        } else {
+            setDpProc.command = ["awww", "img", "-o", output, path]
+            setDpProc.running = true
+            root.dpSet = true
+            console.log("Setting wallpaper:", path, "on", output)
+        }
+    }
+
+    Process {
+        id: setAllProc
+        stderr: SplitParser { onRead: data => console.log("setAll STDERR:", data) }
+    }
+    Process {
+        id: setHdmiProc
+        stderr: SplitParser { onRead: data => console.log("setHdmi STDERR:", data) }
+    }
+    Process {
+        id: setDpProc
+        stderr: SplitParser { onRead: data => console.log("setDp STDERR:", data) }
+    }
 
     Process {
         id: wallpaperListProc
@@ -62,6 +103,172 @@ ShellRoot {
                 anchors.margins: 20
                 spacing: 15
 
+                // --- Display mode dropdown ---
+                RowLayout {
+                    Layout.fillWidth: true
+                    spacing: 10
+
+                    Text {
+                        text: "Display:"
+                        color: Colors.colFg
+                        font.pixelSize: 13
+                        font.family: root.fontFamily
+                        verticalAlignment: Text.AlignVCenter
+                    }
+
+                    Rectangle {
+                        id: dropdownButton
+                        width: 180
+                        height: 30
+                        radius: 5
+                        color: dropdownMouseArea.containsMouse ? Colors.colMuted : Qt.darker(Colors.colMuted, 1.2)
+                        border.color: Colors.colCyan
+                        border.width: 1
+
+                        property var options: ["All Displays", "Individual (HDMI / DP)"]
+
+                        RowLayout {
+                            anchors.fill: parent
+                            anchors.leftMargin: 10
+                            anchors.rightMargin: 8
+                            spacing: 4
+
+                            Text {
+                                Layout.fillWidth: true
+                                text: dropdownButton.options[root.displayMode]
+                                color: Colors.colFg
+                                font.pixelSize: 12
+                                font.family: root.fontFamily
+                                elide: Text.ElideRight
+                                verticalAlignment: Text.AlignVCenter
+                            }
+
+                            Text {
+                                text: dropdownPopup.visible ? "▲" : "▼"
+                                color: Colors.colCyan
+                                font.pixelSize: 10
+                                verticalAlignment: Text.AlignVCenter
+                            }
+                        }
+
+                        MouseArea {
+                            id: dropdownMouseArea
+                            anchors.fill: parent
+                            hoverEnabled: true
+                            onClicked: dropdownPopup.visible = !dropdownPopup.visible
+                        }
+                    }
+
+                    // Hint / status label
+                    Text {
+                        Layout.fillWidth: true
+                        text: {
+                            if (root.displayMode === 0) return "Sets wallpaper on all displays"
+                            var parts = []
+                            if (root.dpSet)   parts.push("DP ✓")
+                            if (root.hdmiSet) parts.push("HDMI ✓")
+                            var done = parts.join("  ")
+                            return done.length > 0
+                                ? done + "  —  Left-click → DP  |  Right-click → HDMI"
+                                : "Left-click → DP  |  Right-click → HDMI"
+                        }
+                        color: Colors.colCyan
+                        font.pixelSize: 11
+                        font.family: root.fontFamily
+                        opacity: 0.8
+                        elide: Text.ElideRight
+                    }
+
+                    // Done button (individual mode only)
+                    Rectangle {
+                        visible: root.displayMode === 1
+                        width: 60
+                        height: 26
+                        radius: 5
+                        color: doneMouseArea.containsMouse ? Colors.colCyan : Qt.darker(Colors.colCyan, 1.5)
+                        border.color: Colors.colCyan
+                        border.width: 1
+
+                        Text {
+                            anchors.centerIn: parent
+                            text: "Done"
+                            color: Colors.colBg
+                            font.pixelSize: 12
+                            font.family: root.fontFamily
+                            font.bold: true
+                        }
+
+                        MouseArea {
+                            id: doneMouseArea
+                            anchors.fill: parent
+                            hoverEnabled: true
+                            onClicked: Qt.quit()
+                        }
+                    }
+                }
+
+                // Dropdown popup — floats over the grid via Item + z
+                Item {
+                    Layout.fillWidth: true
+                    Layout.preferredHeight: 0  // takes no space in layout
+                    z: 999
+
+                    Rectangle {
+                        id: dropdownPopup
+                        visible: false
+                        width: 200
+                        height: dropdownColumn.height + 8
+                        radius: 5
+                        color: Colors.colBg
+                        border.color: Colors.colCyan
+                        border.width: 1
+                        y: 0
+
+                        Column {
+                            id: dropdownColumn
+                            anchors.top: parent.top
+                            anchors.left: parent.left
+                            anchors.right: parent.right
+                            anchors.margins: 4
+                            spacing: 2
+
+                            Repeater {
+                                model: ["All Displays", "Individual (HDMI / DP)"]
+
+                                Rectangle {
+                                    width: parent.width
+                                    height: 28
+                                    radius: 4
+                                    color: optMouseArea.containsMouse
+                                        ? Colors.colMuted
+                                        : (root.displayMode === index ? Qt.darker(Colors.colMuted, 1.1) : "transparent")
+
+                                    Text {
+                                        anchors.verticalCenter: parent.verticalCenter
+                                        anchors.left: parent.left
+                                        anchors.leftMargin: 10
+                                        text: (root.displayMode === index ? "● " : "  ") + modelData
+                                        color: root.displayMode === index ? Colors.colCyan : Colors.colFg
+                                        font.pixelSize: 12
+                                        font.family: root.fontFamily
+                                    }
+
+                                    MouseArea {
+                                        id: optMouseArea
+                                        anchors.fill: parent
+                                        hoverEnabled: true
+                                        onClicked: {
+                                            root.displayMode = index
+                                            root.hdmiSet = false
+                                            root.dpSet = false
+                                            dropdownPopup.visible = false
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
 
                 Item {
                     Layout.fillWidth: true
@@ -144,9 +351,9 @@ ShellRoot {
 
                                         Text {
                                             visible: wallpaperMouseArea.containsMouse
-                                            text: "✓"
+                                            text: root.displayMode === 0 ? "✓" : "L=DP  R=HDMI"
                                             color: Colors.colCyan
-                                            font.pixelSize: 48
+                                            font.pixelSize: root.displayMode === 0 ? 48 : 14
                                             font.bold: true
                                             anchors.centerIn: parent
                                             opacity: 0.9
@@ -157,15 +364,18 @@ ShellRoot {
                                         id: wallpaperMouseArea
                                         anchors.fill: parent
                                         hoverEnabled: true
-                                        
-                                        onClicked: {
-                                            var setWallpaperProc = Qt.createQmlObject('import Quickshell.Io; Process {}', root)
-                                            setWallpaperProc.command = ["awww", "img", modelData]
-                                            setWallpaperProc.running = true
-                                            
-                                            console.log("Setting wallpaper:", modelData)
-                                            
-                                            closeTimer.start()
+                                        acceptedButtons: Qt.LeftButton | Qt.RightButton
+
+                                        onClicked: mouse => {
+                                            if (root.displayMode === 0) {
+                                                root.setWallpaper(modelData, "")
+                                            } else {
+                                                if (mouse.button === Qt.LeftButton) {
+                                                    root.setWallpaper(modelData, root.dpOutput)
+                                                } else if (mouse.button === Qt.RightButton) {
+                                                    root.setWallpaper(modelData, root.hdmiOutput)
+                                                }
+                                            }
                                         }
                                     }
                                 }
